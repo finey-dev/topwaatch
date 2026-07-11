@@ -83,7 +83,10 @@ export async function getMetaFromId(
     if (override) return override;
   }
 
-  const details = await getMediaDetails(id, mediaTypeToTMDB(type));
+  // fetchEpisodes=false: we only need season list metadata here.
+  // getEpisodes() below fetches the selected season's episodes separately (and caches them).
+  // Fetching all seasons upfront caused N concurrent TMDB calls, any of which could fail.
+  const details = await getMediaDetails(id, mediaTypeToTMDB(type), false);
 
   if (!details) return null;
 
@@ -100,10 +103,16 @@ export async function getMetaFromId(
     }
 
     if (selectedSeason) {
-      const episodes = await getEpisodes(
-        details.id.toString(),
-        selectedSeason.season_number,
-      );
+      let episodes: Awaited<ReturnType<typeof getEpisodes>> = [];
+      try {
+        episodes = await getEpisodes(
+          details.id.toString(),
+          selectedSeason.season_number,
+        );
+      } catch {
+        // Episode fetch failed — show an empty episode list rather than
+        // crashing the whole player with "Failed to load metadata".
+      }
 
       seasonData = {
         id: selectedSeason.id.toString(),
