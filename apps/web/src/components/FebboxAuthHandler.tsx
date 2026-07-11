@@ -47,7 +47,12 @@ export function FebboxAuthHandler() {
     // FebboxCallbackPage posts the token to the opener instead.
     if (window.opener && !window.opener.closed) return;
 
-    const token = getFebboxTokenFromParams(searchParams);
+    // Try react-router params first (BrowserRouter), then fall back to the raw
+    // window.location.search so the token is captured even when HashRouter is
+    // active and Febbox redirects to /febbox?auth_token=xxx (no hash prefix).
+    const token =
+      getFebboxTokenFromParams(searchParams) ||
+      getFebboxTokenFromParams(new URLSearchParams(window.location.search));
     if (!token) return;
     finish(token);
      

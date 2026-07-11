@@ -19,7 +19,11 @@ export function FebboxCallbackPage() {
   );
 
   useEffect(() => {
-    const token = getFebboxTokenFromParams(searchParams);
+    // BrowserRouter exposes the token through useSearchParams; with HashRouter
+    // the redirect lands outside the hash so fall back to the raw search string.
+    const token =
+      getFebboxTokenFromParams(searchParams) ||
+      getFebboxTokenFromParams(new URLSearchParams(window.location.search));
     if (!token) {
       setStatus("missing");
       return;
