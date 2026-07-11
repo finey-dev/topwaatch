@@ -36,7 +36,7 @@ import { useAuthStore } from "@/stores/auth";
 import { usePreferencesStore } from "@/stores/preferences";
 import { useSimklStore } from "@/stores/simkl/store";
 import { useTraktStore } from "@/stores/trakt/store";
-import { startFebboxOAuth } from "@/utils/febbox";
+import { resolveFebboxRedirectUri, startFebboxOAuth } from "@/utils/febbox";
 import { simklService } from "@/utils/simkl";
 
 interface ProxyEditProps {
@@ -207,8 +207,11 @@ export function FebboxSetup({
   const preferences = usePreferencesStore();
   const exampleModal = useModal("febbox-example");
   const config = conf();
+  const febboxRedirectUri = resolveFebboxRedirectUri(
+    config.FEBBOX_REDIRECT_URI,
+  );
   const canOAuth = Boolean(
-    config.FEBBOX_CLIENT_ID && config.FEBBOX_REDIRECT_URI,
+    config.FEBBOX_CLIENT_ID && febboxRedirectUri,
   );
 
   // Initialize expansion state for onboarding mode
@@ -269,8 +272,8 @@ export function FebboxSetup({
   };
 
   const connectWithGoogle = () => {
-    if (!config.FEBBOX_CLIENT_ID || !config.FEBBOX_REDIRECT_URI) return;
-    startFebboxOAuth(config.FEBBOX_CLIENT_ID, config.FEBBOX_REDIRECT_URI);
+    if (!config.FEBBOX_CLIENT_ID || !febboxRedirectUri) return;
+    startFebboxOAuth(config.FEBBOX_CLIENT_ID, febboxRedirectUri);
   };
 
   const disconnect = () => {
@@ -406,7 +409,7 @@ export function FebboxSetup({
                       page) — not the API developer page. Set the redirect URI
                       to exactly{" "}
                       <span className="text-white break-all">
-                        {config.FEBBOX_REDIRECT_URI}
+                        {febboxRedirectUri}
                       </span>
                       . If Febbox shows{" "}
                       <span className="text-white">client not found</span>,

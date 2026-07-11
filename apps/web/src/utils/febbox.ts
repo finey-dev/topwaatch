@@ -5,17 +5,47 @@ export const FEBBOX_OAUTH_RETURN_KEY = "febbox_oauth_return";
 export const FEBBOX_OAUTH_MESSAGE = "topwaatch:febbox-auth";
 
 /**
+ * Resolve the Febbox OAuth callback URL.
+ * Febbox only accepts HTTPS redirect URIs (not http://localhost).
+ * When the app runs on a production HTTPS origin, use that origin so the
+ * callback matches where the user actually started (e.g. topwaatch.mov vs vercel.app).
+ */
+export function resolveFebboxRedirectUri(
+  configured: string | null,
+): string | null {
+  if (!configured) return null;
+
+  const origin = window.location.origin;
+  const isLocal =
+    origin.startsWith("http://localhost") ||
+    origin.startsWith("http://127.0.0.1");
+
+  if (isLocal) return configured;
+  if (origin.startsWith("https://")) return `${origin}/febbox`;
+  return configured;
+}
+
+/**
  * Febbox web-authorize login URL.
  * Docs: https://www.febbox.com/open/client
- * After Google login, Febbox redirects to `jump` with `auth_token` (docs also show `auto_token`).
  *
- * Note: Febbox rejects non-HTTPS redirect URIs (including http://localhost).
- * Use an https:// redirect (e.g. https://topwaatch.vercel.app/febbox).
+ * Febbox's own /open/client_auth page starts Google login with `jump` pointing
+ * at /open/client_auth?client_id=…&redirect_uri=… (client_id is NOT a separate
+ * login/google param). Passing client_id directly on login/google causes Febbox
+ * to route through client_auth after Google sign-in with a broken session and
+ * show "Client ID not found!" in a loop.
+ *
+ * After Google login, Febbox hits client_auth while authenticated, then redirects
+ * to redirect_uri with `auth_token` (docs also show `auto_token`).
  */
 export function getFebboxLoginUrl(clientId: string, redirectUri: string): string {
-  const params = new URLSearchParams({
+  const clientAuthJump = `/open/client_auth?${new URLSearchParams({
     client_id: clientId,
-    jump: redirectUri,
+    redirect_uri: redirectUri,
+  }).toString()}`;
+
+  const params = new URLSearchParams({
+    jump: clientAuthJump,
   });
   return `https://www.febbox.com/login/google?${params.toString()}`;
 }
@@ -27,41 +57,14 @@ export function getFebboxTokenFromParams(
   return params.get("auth_token") || params.get("auto_token") || null;
 }
 
-/** True when the app origin matches the registered Febbox redirect origin. */
-export function isFebboxRedirectSameOrigin(redirectUri: string): boolean {
-  try {
-    return window.location.origin === new URL(redirectUri).origin;
-  } catch {
-    return false;
-  }
-}
-
 /**
- * Start Febbox Google login.
- * Same-origin: full-page redirect.
- * Cross-origin (local → https callback): popup + postMessage back.
+ * Start Febbox Google login (full-page redirect).
+ * Local dev uses the configured HTTPS callback; production uses the current origin.
  */
 export function startFebboxOAuth(clientId: string, redirectUri: string): void {
   sessionStorage.setItem(
     FEBBOX_OAUTH_RETURN_KEY,
     `${window.location.pathname}${window.location.search}`,
   );
-
-  const loginUrl = getFebboxLoginUrl(clientId, redirectUri);
-
-  if (isFebboxRedirectSameOrigin(redirectUri)) {
-    window.location.href = loginUrl;
-    return;
-  }
-
-  const popup = window.open(
-    loginUrl,
-    "topwaatch-febbox-oauth",
-    "width=520,height=720,menubar=no,toolbar=no,status=no",
-  );
-
-  if (!popup) {
-    // Popup blocked  fall back to full navigation (user lands on HTTPS site).
-    window.location.href = loginUrl;
-  }
+  window.location.href = getFebboxLoginUrl(clientId, redirectUri);
 }

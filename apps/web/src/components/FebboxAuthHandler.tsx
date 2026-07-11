@@ -9,6 +9,7 @@ import {
   FEBBOX_OAUTH_MESSAGE,
   FEBBOX_OAUTH_RETURN_KEY,
   getFebboxTokenFromParams,
+  resolveFebboxRedirectUri,
 } from "@/utils/febbox";
 
 /**
@@ -59,7 +60,7 @@ export function FebboxAuthHandler() {
   }, [searchParams]);
 
   useEffect(() => {
-    const redirectUri = conf().FEBBOX_REDIRECT_URI;
+    const redirectUri = resolveFebboxRedirectUri(conf().FEBBOX_REDIRECT_URI);
     if (!redirectUri) return;
 
     let redirectOrigin: string;

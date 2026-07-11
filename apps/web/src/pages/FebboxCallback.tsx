@@ -5,6 +5,7 @@ import { conf } from "@/setup/config";
 import {
   FEBBOX_OAUTH_MESSAGE,
   getFebboxTokenFromParams,
+  resolveFebboxRedirectUri,
 } from "@/utils/febbox";
 
 /**
@@ -37,7 +38,7 @@ export function FebboxCallbackPage() {
         "http://localhost:4173",
         "http://127.0.0.1:4173",
       ]);
-      const redirectUri = conf().FEBBOX_REDIRECT_URI;
+      const redirectUri = resolveFebboxRedirectUri(conf().FEBBOX_REDIRECT_URI);
       if (redirectUri) {
         try {
           targets.add(new URL(redirectUri).origin);
