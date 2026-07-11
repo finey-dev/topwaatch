@@ -508,7 +508,9 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
         shouldAutoplayAfterLoad = false;
         const playPromise = videoElement.play();
         if (playPromise !== undefined) {
-          playPromise.catch((_error) => {
+          playPromise.catch((error) => {
+            // play() interrupted by pause() during load  expected, not a failure.
+            if (error?.name === "AbortError") return;
             // Blocked by browser (e.g. iOS before user gesture)  show play button.
             emit("pause", undefined);
           });
@@ -850,7 +852,14 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
     },
     play() {
       if (audioCtx?.state === "suspended") audioCtx.resume().catch(() => {});
-      videoElement?.play();
+      const playPromise = videoElement?.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          // play() interrupted by pause() (seek, source switch, etc.)  expected.
+          if (error?.name === "AbortError") return;
+          emit("pause", undefined);
+        });
+      }
       initAudioAnalysis();
     },
     setSeeking(active) {
