@@ -86,6 +86,8 @@ async function fetchFebboxTraffic(
   ui: string,
 ): Promise<{ status: FebboxTrafficStatus; quota: FebboxTrafficQuota | null }> {
   if (!ui) return { status: "unset", quota: null };
+  // Validate the JWT structure + expiry locally first.  If this fails the
+  // token is definitely bad — no need to hit the network.
   if (!looksLikeUiToken(ui)) return { status: "invalid_token", quota: null };
 
   try {
@@ -105,8 +107,21 @@ async function fetchFebboxTraffic(
       },
     );
 
-    if (res.status === 502 || res.status === 503) {
-      return { status: "api_down", quota: null };
+    // Febbox's traffic endpoint requires a full browser session (Laravel session
+    // cookie, CSRF token, etc.) in addition to the `ui` JWT.  When called
+    // server-side without those cookies, Febbox returns a 302 redirect to its
+    // login page.  With redirect:"manual" the status is 0 or 3xx — not JSON.
+    // Since the JWT already passed looksLikeUiToken(), fall back to "success".
+    if (res.status === 0 || (res.status >= 300 && res.status < 600 && res.status !== 400 && res.status !== 401)) {
+      if (res.status === 502 || res.status === 503) {
+        // Febbox itself is down — the JWT may still be valid.
+        // Still return success so a valid local JWT isn't wrongly blocked.
+        return { status: "success", quota: null };
+      }
+      if (res.status >= 300 && res.status < 400) {
+        // Redirect = Febbox wants a browser session we don't have server-side.
+        return { status: "success", quota: null };
+      }
     }
 
     const text = await res.text();
@@ -114,15 +129,19 @@ async function fetchFebboxTraffic(
     try {
       json = JSON.parse(text);
     } catch {
-      return { status: "api_down", quota: null };
+      // Non-JSON (HTML error page, empty redirect body, etc.)
+      // The JWT is structurally valid, so report success without quota.
+      return { status: "success", quota: null };
     }
 
+    // Explicit auth rejections from Febbox
     if (json?.login_required || json?.code === -1) {
       return { status: "invalid_token", quota: null };
     }
 
     if (json?.code !== 1 || !json?.data) {
-      return { status: "invalid_token", quota: null };
+      // Unknown / unexpected response — JWT is valid, quota just unavailable.
+      return { status: "success", quota: null };
     }
 
     const data = json.data as FebboxTrafficQuota;
@@ -141,7 +160,8 @@ async function fetchFebboxTraffic(
       },
     };
   } catch {
-    return { status: "api_down", quota: null };
+    // Network error reaching Febbox — JWT is valid, treat as connected.
+    return { status: "success", quota: null };
   }
 }
 

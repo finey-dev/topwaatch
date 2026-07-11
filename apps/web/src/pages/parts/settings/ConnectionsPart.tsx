@@ -398,18 +398,20 @@ export function FebboxSetup({
                       TopWaatch Cinema (Nova & Orbit).
                     </p>
                     <p className="text-xs text-type-secondary opacity-70">
-                      Febbox only allows{" "}
-                      <span className="text-white">https://</span> redirect
-                      URIs  not localhost. Keep only{" "}
-                      <span className="text-white break-all">
-                        {config.FEBBOX_REDIRECT_URI}
-                      </span>{" "}
-                      on{" "}
+                      Make sure you created your client at{" "}
                       <MwLink url="https://www.febbox.com/open/client">
                         febbox.com/open/client
-                      </MwLink>
-                      , then save. Local connect opens a secure popup and
-                      returns here automatically.
+                      </MwLink>{" "}
+                      (the <span className="text-white">web-authorize</span>{" "}
+                      page) — not the API developer page. Set the redirect URI
+                      to exactly{" "}
+                      <span className="text-white break-all">
+                        {config.FEBBOX_REDIRECT_URI}
+                      </span>
+                      . If Febbox shows{" "}
+                      <span className="text-white">client not found</span>,
+                      your client_id is from the wrong page — create a new one
+                      at the link above.
                     </p>
                   </>
                 )}
