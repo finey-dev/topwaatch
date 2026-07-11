@@ -1,0 +1,32 @@
+{
+  "name": "@topwaatch/api",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@topwaatch/auth": "workspace:*",
+    "@topwaatch/db": "workspace:*",
+    "@topwaatch/env": "workspace:*",
+    "@topwaatch/providers": "workspace:*",
+    "@trpc/client": "catalog:",
+    "@trpc/server": "catalog:",
+    "dotenv": "catalog:",
+    "drizzle-orm": "^0.45.2",
+    "p-limit": "^7.3.0",
+    "uuidv7": "^1.1.0",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@topwaatch/config": "workspace:*",
+    "@types/pg": "^8.20.0",
+    "hono": "catalog:",
+    "typescript": "^6"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "eslint.workingDirectories": [
+    { "directory": "apps/web", "changeProcessCWD": true },
+    { "directory": "apps/server", "changeProcessCWD": true },
+    { "directory": "packages/api", "changeProcessCWD": true },
+    { "directory": "workers/proxy", "changeProcessCWD": true }
+  ],
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsdk": "node_modules/typescript/lib"
+}

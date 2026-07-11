@@ -1,0 +1,121 @@
+import { flags } from '@/entrypoint/utils/targets';
+import { Caption } from '@/providers/captions';
+import { Stream } from '@/providers/streams';
+
+export function isHlsUrl(url: string): boolean {
+  return /\.m3u8(\?|#|$)/i.test(url) || /\/hls\//i.test(url);
+}
+
+export function isLikelyMp4Url(url: string): boolean {
+  if (isHlsUrl(url)) return false;
+  const path = url.split('?')[0]?.toLowerCase() ?? '';
+  return (
+    path.endsWith('.mp4') ||
+    path.endsWith('.mkv') ||
+    path.endsWith('.webm') ||
+    /shegu\.net/i.test(url) ||
+    /febbox\.com/i.test(url)
+  );
+}
+
+export function streamMediaType(
+  url: string,
+  declared?: 'hls' | 'mp4',
+): 'hls' | 'mp4' {
+  if (isHlsUrl(url)) return 'hls';
+  if (declared === 'hls' || declared === 'mp4') return declared;
+  return isLikelyMp4Url(url) ? 'mp4' : 'mp4';
+}
+
+export function febboxPlaybackHeaders(ui: string): Record<string, string> {
+  return {
+    Cookie: `ui=${ui}`,
+    Referer: 'https://www.febbox.com/',
+    Origin: 'https://www.febbox.com',
+  };
+}
+
+type Parsed = { url: string; type: 'hls' | 'mp4' };
+
+/** Prefer highest listed quality for HLS playlists. */
+export function pickBestHls(streams: Record<string, Parsed>): Parsed | null {
+  for (const q of [2160, 1080, 720, 480, 360] as const) {
+    if (streams[q]?.type === 'hls') return streams[q];
+  }
+  if (streams.unknown?.type === 'hls') return streams.unknown;
+  return Object.values(streams).find((s) => s.type === 'hls') ?? null;
+}
+
+export function buildMp4Qualities(
+  streams: Record<string, Parsed>,
+): NonNullable<Extract<Stream, { type: 'file' }>['qualities']> {
+  const qualities: NonNullable<Extract<Stream, { type: 'file' }>['qualities']> =
+    {};
+  if (streams[2160]?.type === 'mp4') {
+    qualities['4k'] = { type: 'mp4', url: streams[2160].url };
+  }
+  if (streams[1080]?.type === 'mp4') {
+    qualities[1080] = { type: 'mp4', url: streams[1080].url };
+  }
+  if (streams[720]?.type === 'mp4') {
+    qualities[720] = { type: 'mp4', url: streams[720].url };
+  }
+  if (streams[480]?.type === 'mp4') {
+    qualities[480] = { type: 'mp4', url: streams[480].url };
+  }
+  if (streams[360]?.type === 'mp4') {
+    qualities[360] = { type: 'mp4', url: streams[360].url };
+  }
+  if (streams.unknown?.type === 'mp4') {
+    qualities.unknown = { type: 'mp4', url: streams.unknown.url };
+  }
+  return qualities;
+}
+
+/**
+ * Build ordered stream candidates.
+ * Nova: MP4 first, then HLS. Orbit: HLS first, then MP4.
+ * Runner validates all and keeps whatever is playable.
+ */
+export function buildFebboxStreamResults(opts: {
+  prefer: 'mp4' | 'hls';
+  streams: Record<string, Parsed>;
+  captions: Caption[];
+  headers: Record<string, string>;
+}): Stream[] {
+  const hls = pickBestHls(opts.streams);
+  const qualities = buildMp4Qualities(opts.streams);
+  const hasMp4 = Object.keys(qualities).length > 0;
+
+  const hlsStream: Stream | null = hls
+    ? {
+        id: 'primary-hls',
+        captions: opts.captions,
+        playlist: hls.url,
+        type: 'hls',
+        headers: opts.headers,
+        flags: [flags.CORS_ALLOWED],
+      }
+    : null;
+
+  const fileStream: Stream | null = hasMp4
+    ? {
+        id: 'primary-file',
+        captions: opts.captions,
+        qualities,
+        type: 'file',
+        headers: opts.headers,
+        flags: [flags.CORS_ALLOWED],
+      }
+    : null;
+
+  const out: Stream[] = [];
+  if (opts.prefer === 'mp4') {
+    if (fileStream) out.push(fileStream);
+    if (hlsStream) out.push(hlsStream);
+  } else {
+    if (hlsStream) out.push(hlsStream);
+    if (fileStream) out.push(fileStream);
+  }
+  return out;
+}

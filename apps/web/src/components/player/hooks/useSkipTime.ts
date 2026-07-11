@@ -1,0 +1,210 @@
+import { useEffect } from "react";
+
+import { mwFetch, proxiedFetch } from "@/backend/helpers/fetch";
+import { usePlayerMeta } from "@/components/player/hooks/usePlayerMeta";
+import type { PlayerMeta } from "@/stores/player/slices/source";
+import { usePlayerStore } from "@/stores/player/store";
+import { usePreferencesStore } from "@/stores/preferences";
+
+// Thanks Nemo for this API
+const THE_INTRO_DB_BASE_URL = "https://api.theintrodb.org/v3";
+const INTRODB_BASE_URL = "https://api.introdb.app/intro";
+
+// Track the source of the current skip time (for analytics filtering)
+let currentSkipTimeSource: "introdb" | "theintrodb" | null = null;
+
+// Prevent multiple components from triggering overlapping fetches for the same media
+let fetchingForCacheKey: string | null = null;
+
+/** Cache key for skip segments – matches TIDB API (tmdbId + season + episode number). */
+function getSkipSegmentsCacheKey(meta: PlayerMeta | null): string | null {
+  if (!meta?.tmdbId) return null;
+  if (meta.type === "movie") return `skip-${meta.type}-${meta.tmdbId}`;
+  if (meta.type === "show" && meta.season != null && meta.episode != null) {
+    return `skip-${meta.type}-${meta.tmdbId}-${meta.season.number}-${meta.episode.number}`;
+  }
+  return null;
+}
+
+export function useSkipTimeSource(): typeof currentSkipTimeSource {
+  return currentSkipTimeSource;
+}
+
+export interface SegmentData {
+  type: "intro" | "recap" | "credits" | "preview";
+  start_ms: number | null;
+  end_ms: number | null;
+}
+
+export function useSkipTime() {
+  const { playerMeta: meta } = usePlayerMeta();
+  const cacheKey = getSkipSegmentsCacheKey(meta ?? null);
+  const skipSegmentsCacheKey = usePlayerStore((s) => s.skipSegmentsCacheKey);
+  const skipSegments = usePlayerStore((s) => s.skipSegments);
+  const setSkipSegments = usePlayerStore((s) => s.setSkipSegments);
+  const tidbKey = usePreferencesStore((s) => s.tidbKey);
+
+  useEffect(() => {
+    if (!cacheKey) return;
+    // Already have segments for this media – don't refetch (e.g. when opening menu)
+    if (usePlayerStore.getState().skipSegmentsCacheKey === cacheKey) return;
+    // Another fetch for this key is already in progress (e.g. two components mounted)
+    if (fetchingForCacheKey === cacheKey) return;
+    fetchingForCacheKey = cacheKey;
+
+    const fetchTheIntroDBSegments = async (): Promise<{
+      segments: SegmentData[];
+      tidbNotFound: boolean;
+    }> => {
+      if (!meta?.tmdbId) return { segments: [], tidbNotFound: false };
+
+      try {
+        let apiUrl = `${THE_INTRO_DB_BASE_URL}/media?tmdb_id=${meta.tmdbId}`;
+        if (
+          meta.type !== "movie" &&
+          meta.season?.number &&
+          meta.episode?.number
+        ) {
+          apiUrl += `&season=${meta.season.number}&episode=${meta.episode.number}`;
+        }
+
+        const durationMs = Math.round(
+          (usePlayerStore.getState().progress?.duration ?? 0) * 1000,
+        );
+        if (durationMs > 0) {
+          apiUrl += `&duration_ms=${durationMs}`;
+        }
+
+        const data = await mwFetch(apiUrl, {
+          headers: {
+            Authorization: tidbKey ? `Bearer ${tidbKey}` : undefined,
+          } as HeadersInit,
+        });
+
+        const fetchedSegments: SegmentData[] = [];
+        const segmentTypes = [
+          "intro",
+          "recap",
+          "credits",
+          "preview",
+        ] as const;
+
+        for (const segType of segmentTypes) {
+          if (Array.isArray(data?.[segType])) {
+            for (const segment of data[segType]) {
+              fetchedSegments.push({
+                type: segType,
+                start_ms: segment.start_ms,
+                end_ms: segment.end_ms,
+              });
+            }
+          }
+        }
+
+        // TIDB returned 200 – we have segment data for this media (even if no intro)
+        return { segments: fetchedSegments, tidbNotFound: false };
+      } catch (error: unknown) {
+        const err = error as {
+          response?: { status?: number };
+          status?: number;
+        };
+        const status = err?.response?.status ?? err?.status;
+        if (status === 404) {
+          return { segments: [], tidbNotFound: true };
+        }
+        console.error("Error fetching TIDB segments:", error);
+        return { segments: [], tidbNotFound: false };
+      }
+    };
+
+    const fetchIntroDBTime = async (): Promise<number | null> => {
+      if (!meta?.imdbId || meta.type === "movie") return null;
+
+      try {
+        const apiUrl = `${INTRODB_BASE_URL}?imdb_id=${meta.imdbId}&season=${meta.season?.number}&episode=${meta.episode?.number}`;
+
+        const data = await proxiedFetch(apiUrl);
+
+        if (data && typeof data.end_ms === "number") {
+          // Convert milliseconds to seconds
+          return Math.floor(data.end_ms / 1000);
+        }
+
+        return null;
+      } catch (error) {
+        console.error("Error fetching IntroDB time:", error);
+        return null;
+      }
+    };
+
+    const applySegments = (segmentsToApply: SegmentData[]) => {
+      // Only update store if this fetch is still for the current media (avoid stale overwrite)
+      const currentKey = getSkipSegmentsCacheKey(
+        usePlayerStore.getState().meta ?? null,
+      );
+      if (currentKey === cacheKey) {
+        setSkipSegments(cacheKey, segmentsToApply);
+      }
+    };
+
+    const fetchSkipTime = async (): Promise<void> => {
+      currentSkipTimeSource = null;
+
+      try {
+        // Try TheIntroDB API first (supports both movies and TV shows with full segment data)
+        const { segments: tidbSegments, tidbNotFound } =
+          await fetchTheIntroDBSegments();
+
+        // TIDB returned 200 – use whatever segments we got (intro, recap, credits; may be empty)
+        if (!tidbNotFound) {
+          currentSkipTimeSource = "theintrodb";
+          applySegments(tidbSegments);
+          return;
+        }
+
+        // TIDB returned 404 – no segment data for this media; try IntroDB for intro only
+        const nonIntroSegments: SegmentData[] = [];
+        let fallbackIntroSegment: SegmentData | null = null;
+
+        if (meta?.type !== "movie") {
+          const introDBTime = await fetchIntroDBTime();
+          if (introDBTime !== null) {
+            currentSkipTimeSource = "introdb";
+            fallbackIntroSegment = {
+              type: "intro",
+              start_ms: 0,
+              end_ms: introDBTime * 1000,
+            };
+          }
+        }
+
+        const finalSegments: SegmentData[] = [];
+        if (fallbackIntroSegment) {
+          finalSegments.push(fallbackIntroSegment);
+        }
+        finalSegments.push(...nonIntroSegments);
+
+        applySegments(finalSegments);
+      } finally {
+        if (fetchingForCacheKey === cacheKey) {
+          fetchingForCacheKey = null;
+        }
+      }
+    };
+
+    fetchSkipTime();
+  }, [
+    cacheKey,
+    meta?.tmdbId,
+    meta?.imdbId,
+    meta?.title,
+    meta?.type,
+    meta?.season?.number,
+    meta?.episode?.number,
+    setSkipSegments,
+    tidbKey,
+  ]);
+
+  // Only return segments when they're for the current media (avoid showing stale data)
+  return cacheKey === skipSegmentsCacheKey ? skipSegments : [];
+}

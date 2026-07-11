@@ -1,0 +1,12 @@
+name = "topwaatch-proxy"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+
+[vars]
+ALLOWED_ORIGIN = "*"
+# Success sample rates (errors always logged). Host appears in logs only.
+PROXY_METRICS_SAMPLE_TS = "0.01"
+PROXY_METRICS_SAMPLE_M3U8 = "0.1"
+PROXY_METRICS_SAMPLE_PROXY = "0.1"
+# Set to "0" to disable structured console logs (counters still update).
+PROXY_METRICS_LOG = "1"

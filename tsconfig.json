@@ -1,0 +1,3 @@
+{
+  "extends": "@topwaatch/config/tsconfig.base.json"
+}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>TopWaatch Notifications</title>
+    <description>Site updates and announcements for the TopWaatch community</description>
+    <language>en</language>
+    <lastBuildDate>Mon, 07 Jul 2026 00:00:00 GMT</lastBuildDate>
+
+    <item>
+      <guid>notification-topwaatch-001</guid>
+      <title>Welcome to TopWaatch!</title>
+      <description>We're glad you're here  welcome to the TopWaatch community.
+
+TopWaatch helps you discover movies and TV shows, pick up where you left off, and keep track of what you love. We don't host any videos ourselves. When you hit play, TopWaatch searches third-party sources on the internet and brings the stream to you in one place.
+
+What we're building toward: a streaming experience that feels personal, reliable, and built with our community in mind  not just another clone, but a home for people who care about how they watch.
+
+We're early (v0.1.0), and there's a lot ahead. Your feedback and patience as we grow mean everything.
+
+Thanks for being here. Happy watching!
+      </description>
+      <link>https://topwaatch.mov</link>
+      <pubDate>Mon, 07 Jul 2026 00:00:00 GMT</pubDate>
+      <category>announcement</category>
+    </item>
+
+  </channel>
+</rss>
