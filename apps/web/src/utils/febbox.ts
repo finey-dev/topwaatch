@@ -5,9 +5,8 @@ export const FEBBOX_OAUTH_RETURN_KEY = "febbox_oauth_return";
 export const FEBBOX_OAUTH_MESSAGE = "topwaatch:febbox-auth";
 
 /**
- * Use the configured Febbox redirect URI exactly as registered at
- * https://www.febbox.com/open/client — do not derive it from window.location,
- * or preview/staging origins will fail Febbox validation.
+ * Returns the configured Febbox redirect URI unchanged.
+ * Must exactly match the redirect URI registered at https://www.febbox.com/open/client.
  */
 export function resolveFebboxRedirectUri(
   configured: string | null,
@@ -16,21 +15,24 @@ export function resolveFebboxRedirectUri(
 }
 
 /**
- * Febbox web-authorize entry URL.
+ * Febbox web-authorize login URL.
  * Docs: https://www.febbox.com/open/client
  *
- * Start at /open/client_auth and let Febbox build the Google login link.
- * Constructing /login/google ourselves is fragile: putting client_id on that
- * URL lands on client_auth with "Client ID not found", and nesting client_auth
- * inside jump with an encoded redirect_uri triggers "redirect URI is not allowed"
- * on the Google callback. Febbox's own login page uses the correct shape.
+ * The documented flow for web-authorize clients (/open/client) is:
+ *   https://www.febbox.com/login/google?client_id=X&jump=REDIRECT_URI
+ * After the user signs in with Google, Febbox redirects to:
+ *   REDIRECT_URI?auth_token=TOKEN
+ *
+ * Do NOT use /open/client_auth as the entry point — that endpoint is for
+ * API OAuth clients created at /open/clients (plural) and will return
+ * "client not found" for web-authorize clients.
  */
 export function getFebboxLoginUrl(clientId: string, redirectUri: string): string {
   const params = new URLSearchParams({
     client_id: clientId,
-    redirect_uri: redirectUri,
+    jump: redirectUri,
   });
-  return `https://www.febbox.com/open/client_auth?${params.toString()}`;
+  return `https://www.febbox.com/login/google?${params.toString()}`;
 }
 
 /** Read token from Febbox callback query (docs use both names). */
