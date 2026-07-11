@@ -30,6 +30,12 @@ export type SourceSliceSource =
       url: string;
       headers?: Stream["headers"];
       preferredHeaders?: Stream["preferredHeaders"];
+    }
+  | {
+      type: "iframe";
+      /** Full Peachify (or compatible) embed URL rendered as <iframe src> */
+      embedUrl: string;
+      startAt?: number;
     };
 
 const qualitySorting: Record<SourceQuality, number> = {

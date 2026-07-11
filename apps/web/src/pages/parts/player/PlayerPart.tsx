@@ -2,6 +2,7 @@ import { ReactNode, useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { BrandPill } from "@/components/layout/BrandPill";
+import { PeachifyIframePlayer } from "@/components/player/atoms/PeachifyIframePlayer";
 import { Player } from "@/components/player";
 import { SkipSegmentButton } from "@/components/player/atoms/SkipSegmentButton";
 import { ThumbsFeedback } from "@/components/player/atoms/ThumbsFeedback";
@@ -96,6 +97,8 @@ export function PlayerPart(props: PlayerPartProps) {
   return (
     <Player.Container onLoad={props.onLoad} showingControls={showTargets}>
       {props.children}
+      {/* Peachify and other iframe-based sources replace the video with a sandboxed iframe */}
+      <PeachifyIframePlayer />
       <PauseOverlay />
       <Player.BlackOverlay
         show={showTargets && status === playerStatus.PLAYING}

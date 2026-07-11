@@ -34,4 +34,10 @@ export type HlsBasedStream = StreamCommon & {
   proxyDepth?: 0 | 1 | 2;
 };
 
-export type Stream = FileBasedStream | HlsBasedStream;
+export type IframeBasedStream = StreamCommon & {
+  type: 'iframe';
+  /** Full embed URL including query params — rendered as <iframe src={embedUrl}> */
+  embedUrl: string;
+};
+
+export type Stream = FileBasedStream | HlsBasedStream | IframeBasedStream;

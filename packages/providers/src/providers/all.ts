@@ -102,6 +102,7 @@ import { warezcdnScraper } from './sources/warezcdn';
 import { watchanimeworldScraper } from './sources/watchanimeworld';
 import { wecimaScraper } from './sources/wecima';
 import { zunimeScraper } from './sources/zunime';
+import { peachifyScraper } from './sources/peachify';
 
 export function gatherAllSources(): Array<Sourcerer> {
   // all sources are gathered here
@@ -151,6 +152,7 @@ export function gatherAllSources(): Array<Sourcerer> {
     vidlinkScraper,
     vidrockScraper,
     watchanimeworldScraper,
+    peachifyScraper,
   ];
 }
 

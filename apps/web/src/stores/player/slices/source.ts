@@ -268,6 +268,22 @@ export const createSourceSlice: MakeSlice<SourceSlice> = (set, get) => ({
     captions: CaptionListItem[],
     startAt: number,
   ) {
+    // Iframe streams (e.g. Peachify) are rendered as a full-page <iframe> — no
+    // video display pipeline is involved at all.
+    if (stream.type === "iframe") {
+      set((s) => {
+        s.source = { ...stream, startAt };
+        s.qualities = [];
+        s.currentQuality = null;
+        s.captionList = captions;
+        s.interface.error = undefined;
+        s.status = playerStatus.PLAYING;
+        s.audioTracks = [];
+        s.currentAudioTrack = null;
+      });
+      return;
+    }
+
     let qualities: SourceQuality[] = [];
     if (stream.type === "file") {
       // Only expose qualities the browser can decode (skip HEVC on Linux Chrome).
@@ -320,7 +336,7 @@ export const createSourceSlice: MakeSlice<SourceSlice> = (set, get) => ({
   },
   redisplaySource(startAt: number) {
     const store = get();
-    if (!store.source) return;
+    if (!store.source || store.source.type === "iframe") return;
     const qualityPreferences = useQualityStore.getState();
     const loadableStream = selectQuality(store.source, {
       automaticQuality: qualityPreferences.quality.automaticQuality,
@@ -339,7 +355,7 @@ export const createSourceSlice: MakeSlice<SourceSlice> = (set, get) => ({
   },
   switchQuality(quality) {
     const store = get();
-    if (!store.source) return;
+    if (!store.source || store.source.type === "iframe") return;
     if (store.source.type === "file") {
       const selectedQuality = store.source.qualities[quality];
       if (!selectedQuality) return;
