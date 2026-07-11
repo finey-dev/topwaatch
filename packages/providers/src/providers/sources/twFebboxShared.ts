@@ -37,6 +37,17 @@ export function getFebboxUserToken(): string | null {
 /** Prefer scrape context / auth store, then window config, then localhost. */
 export function getFebboxBackendUrl(): string {
   if (serverScrapeContext.backendUrl) return serverScrapeContext.backendUrl;
+  // Server-side scrapes (no window): fall back to auth URL env when context
+  // was not set (e.g. older callers).
+  if (typeof window === 'undefined') {
+    const envUrl =
+      typeof process !== 'undefined'
+        ? process.env.BETTER_AUTH_URL || process.env.VITE_BACKEND_URL
+        : undefined;
+    if (typeof envUrl === 'string' && envUrl.length > 0) {
+      return envUrl.replace(/\/$/, '');
+    }
+  }
   try {
     if (typeof window !== 'undefined') {
       const auth = window.localStorage.getItem('__MW::auth');

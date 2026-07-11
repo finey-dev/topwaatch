@@ -58,6 +58,7 @@ function rewriteUriAttribute(
   baseProxyUrl: string,
   headers: Record<string, string>,
   proxyPath: "m3u8-proxy" | "ts-proxy",
+  directSegments: boolean,
 ): string {
   return line.replace(
     /URI=(?:"([^"]+)"|'([^']+)'|([^,\s]+))/gi,
@@ -71,6 +72,11 @@ function rewriteUriAttribute(
       if (!raw) return full;
       const resolved = parseURL(raw, sourceUrl);
       if (!resolved) return full;
+      if (directSegments && proxyPath === "ts-proxy") {
+        if (d1 !== undefined) return `URI="${resolved}"`;
+        if (d2 !== undefined) return `URI='${resolved}'`;
+        return `URI=${resolved}`;
+      }
       const proxied = proxyUrl(baseProxyUrl, proxyPath, resolved, headers);
       if (d1 !== undefined) return `URI="${proxied}"`;
       if (d2 !== undefined) return `URI='${proxied}'`;
@@ -84,6 +90,7 @@ function rewritePlaylist(
   sourceUrl: string,
   baseProxyUrl: string,
   headers: Record<string, string>,
+  directSegments: boolean,
 ): string {
   const lines = m3u8Content.split("\n");
   const newLines: string[] = [];
@@ -100,6 +107,7 @@ function rewritePlaylist(
             baseProxyUrl,
             headers,
             "ts-proxy",
+            directSegments,
           ),
         );
       } else if (
@@ -114,6 +122,7 @@ function rewritePlaylist(
             baseProxyUrl,
             headers,
             "m3u8-proxy",
+            directSegments,
           ),
         );
       } else {
@@ -122,14 +131,20 @@ function rewritePlaylist(
     } else if (line.trim()) {
       const resolved = parseURL(line, sourceUrl);
       if (resolved) {
-        newLines.push(
-          proxyUrl(
-            baseProxyUrl,
-            isMaster ? "m3u8-proxy" : "ts-proxy",
-            resolved,
-            headers,
-          ),
-        );
+        if (directSegments && !isMaster) {
+          // IP-locked CDNs (e.g. vix-content.net): browser fetches segments
+          // directly; Cloudflare/ts-proxy gets 403.
+          newLines.push(resolved);
+        } else {
+          newLines.push(
+            proxyUrl(
+              baseProxyUrl,
+              isMaster ? "m3u8-proxy" : "ts-proxy",
+              resolved,
+              headers,
+            ),
+          );
+        }
       } else {
         newLines.push(line);
       }
@@ -196,12 +211,14 @@ export async function handleM3u8(
       );
     }
     const baseProxyUrl = `${url.protocol}//${url.host}`;
+    const directSegments = url.searchParams.get("directSegments") === "1";
     const rewritten = rewritePlaylist(
       m3u8Content,
       // Prefer final URL after redirects so relative paths resolve correctly
       response.url || targetUrl,
       baseProxyUrl,
       headers,
+      directSegments,
     );
 
     const outHeaders = corsHeaders(corsOrigin);

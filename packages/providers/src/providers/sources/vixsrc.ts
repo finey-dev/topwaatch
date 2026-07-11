@@ -1,3 +1,4 @@
+import { flags } from '@/entrypoint/utils/targets';
 import { SourcererOutput, makeSourcerer } from '@/providers/base';
 import { MovieScrapeContext, ShowScrapeContext } from '@/utils/context';
 import { NotFoundError } from '@/utils/errors';
@@ -67,7 +68,8 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
         type: 'hls',
         playlist: masterUrl,
         captions: [],
-        flags: [],
+        // CDN segments allow browser CORS but block Cloudflare/datacenter IPs.
+        flags: [flags.CORS_ALLOWED, flags.IP_LOCKED],
         headers: {
           ...headers,
           Referer: embedPageUrl,

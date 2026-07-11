@@ -98,6 +98,7 @@ async function fetchFebboxTraffic(
         headers: {
           "User-Agent": FEBBOX_UA,
           Accept: "application/json, text/javascript, */*; q=0.01",
+          "Accept-Language": "en",
           "X-Requested-With": "XMLHttpRequest",
           Referer: "https://www.febbox.com/",
           Origin: "https://www.febbox.com",

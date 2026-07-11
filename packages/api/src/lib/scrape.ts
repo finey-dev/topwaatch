@@ -2,6 +2,7 @@ import { db } from "@topwaatch/db";
 import { userSettings } from "@topwaatch/db/schema/user-settings";
 import { env } from "@topwaatch/env/server";
 import {
+  flags,
   makeProviders,
   makeSimpleProxyFetcher,
   makeStandardFetcher,
@@ -166,6 +167,8 @@ function rewriteUrlThroughProxy(
   headers: Record<string, string> = {},
   /** Force m3u8-proxy  HLS playlists often lack `.m3u8` in the path. */
   asHls = false,
+  /** Leave .ts segments as direct CDN URLs (IP-locked hosts block Workers). */
+  directSegments = false,
 ): string {
   if (!url) return url;
 
@@ -188,9 +191,10 @@ function rewriteUrlThroughProxy(
     Object.keys(headers).length > 0
       ? `&headers=${encodeURIComponent(JSON.stringify(headers))}`
       : "";
+  const directQuery = directSegments ? "&directSegments=1" : "";
 
   if (looksLikeHls) {
-    return `${m3u8Base.replace(/\/$/, "")}/m3u8-proxy?url=${encodeURIComponent(url)}${headersQuery}`;
+    return `${m3u8Base.replace(/\/$/, "")}/m3u8-proxy?url=${encodeURIComponent(url)}${headersQuery}${directQuery}`;
   }
 
   return `${proxyUrl}?destination=${encodeURIComponent(url)}${headersQuery}`;
@@ -209,6 +213,7 @@ function rewriteStream(
   }
 
   if (stream.type === "hls") {
+    const directSegments = stream.flags?.includes(flags.IP_LOCKED) ?? false;
     return {
       ...stream,
       // Always m3u8-proxy for playlists (rewrites segment URLs). Heuristic
@@ -219,6 +224,7 @@ function rewriteStream(
         m3u8Base,
         headers,
         true,
+        directSegments,
       ),
       captions: stream.captions?.map((cap) => ({
         ...cap,

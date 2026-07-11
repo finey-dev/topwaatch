@@ -25,6 +25,8 @@ function headers(ui: string, shareKey?: string): Record<string, string> {
   const h: Record<string, string> = {
     "User-Agent": FEBBOX_UA,
     Accept: "application/json, text/javascript, */*; q=0.01",
+    // Febbox marks requests without this header as webscrapers and returns 500.
+    "Accept-Language": "en",
     "X-Requested-With": "XMLHttpRequest",
     Origin: FEBBOX_BASE,
     Cookie: `ui=${ui}`,
