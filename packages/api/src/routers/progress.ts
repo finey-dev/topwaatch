@@ -109,8 +109,8 @@ export const progressRouter = router({
           seasonNumber: validatedBody.seasonNumber ?? null,
           episodeNumber: validatedBody.episodeNumber ?? null,
           meta: validatedBody.meta,
-          duration: parseInt(validatedBody.duration, 10) || 0,
-          watched: parseInt(validatedBody.watched, 10) || 0,
+          duration: parseInt(String(validatedBody.duration ?? 0), 10) || 0,
+          watched: parseInt(String(validatedBody.watched ?? 0), 10) || 0,
           updatedAt: now,
         };
       }

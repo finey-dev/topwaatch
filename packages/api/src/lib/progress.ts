@@ -10,7 +10,8 @@ export function progressIsCompleted(duration: number, watched: number): boolean 
 }
 
 /** Coerce float/string seconds into a non-negative BigInt for DB columns. */
-export function toProgressBigInt(value: string | number | bigint): bigint {
+export function toProgressBigInt(value: string | number | bigint | null | undefined): bigint {
+  if (value == null) return 0n;
   if (typeof value === "bigint") return value < 0n ? 0n : value;
   const n = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(n) || n < 0) return 0n;
@@ -46,15 +47,15 @@ export type ProgressRow = {
 export function shouldSaveProgressItem(
   validatedBody: {
     meta: { type: "movie" | "show" | "tv" };
-    duration: string;
-    watched: string;
+    duration?: string | number;
+    watched?: string | number;
     seasonId?: string;
     episodeId?: string;
   },
   seasonEpisodes: ProgressRow[],
 ): boolean {
-  const duration = parseInt(validatedBody.duration, 10);
-  const watched = parseInt(validatedBody.watched, 10);
+  const duration = parseInt(String(validatedBody.duration ?? 0), 10);
+  const watched = parseInt(String(validatedBody.watched ?? 0), 10);
   const isNotStarted = progressIsNotStarted(duration, watched);
   const isCompleted = progressIsCompleted(duration, watched);
   const isAcceptable = !isNotStarted && !isCompleted;

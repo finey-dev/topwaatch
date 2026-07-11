@@ -150,20 +150,20 @@ scrapeSseRoutes.get("/scrape/run", async (c) => {
         },
       });
 
-      // Compact done event  full payload fetched via /scrape/result/:id
+      // Compact done event — full payload fetched via /scrape/result/:id
       const resultId = storeScrapeResult(result);
-      if (result.ok) {
-        await send("done", {
-          resultId,
-          ok: true,
-          sourceId: result.sourceId,
-        });
-      } else {
+      if (result.ok === false) {
         await send("done", {
           resultId,
           ok: false,
           stream: null,
           error: result.error,
+        });
+      } else {
+        await send("done", {
+          resultId,
+          ok: true,
+          sourceId: result.sourceId,
         });
       }
     } catch (err) {
