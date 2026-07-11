@@ -38,11 +38,17 @@ export function MetaPart(props: MetaPartProps) {
   const navigate = useNavigate();
 
   const { error, value, loading } = useAsync(async () => {
-    // use providers metadata
-    setCachedMetadata([
-      ...getProviders().listSources(),
-      ...getProviders().listEmbeds(),
-    ]);
+    // Populate provider metadata for the settings UI.
+    // This is non-critical — a rank collision or init error must never abort
+    // the media load, so we swallow any error here.
+    try {
+      setCachedMetadata([
+        ...getProviders().listSources(),
+        ...getProviders().listEmbeds(),
+      ]);
+    } catch (e) {
+      console.error("[MetaPart] getProviders() failed (non-fatal):", e);
+    }
 
     // get media meta data
     let data: ReturnType<typeof decodeTMDBId> = null;

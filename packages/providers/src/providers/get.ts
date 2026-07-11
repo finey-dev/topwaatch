@@ -37,31 +37,45 @@ function formatDuplicateError(
   return `${type} have duplicate ${keyName}s:\n${duplicateList}`;
 }
 
+/**
+ * Resolve rank collisions by incrementing duplicates until all ranks are unique.
+ * Logs a warning so the bug is visible in dev without crashing the player.
+ */
+function deduplicateRanks<T extends { rank: number }>(items: T[], label: string): T[] {
+  const used = new Set<number>();
+  return items.map((item) => {
+    let rank = item.rank;
+    if (used.has(rank)) {
+      const original = rank;
+      while (used.has(rank)) rank += 1;
+      console.warn(
+        `[providers] ${label} rank collision: "${(item as any).name ?? (item as any).id}" was ${original}, auto-adjusted to ${rank}. Fix the source file.`,
+      );
+    }
+    used.add(rank);
+    return rank === item.rank ? item : { ...item, rank };
+  });
+}
+
 export function getProviders(features: FeatureMap, list: ProviderList): ProviderList {
   const sources = list.sources.filter((v) => !v?.disabled);
   const embeds = list.embeds.filter((v) => !v?.disabled);
   const combined = [...sources, ...embeds];
 
-  // Check for duplicate IDs
+  // Duplicate IDs are always a hard error — two providers with the same ID
+  // cannot coexist and would cause silent data corruption.
   const duplicateIds = findDuplicates(combined, (v) => v.id);
   if (duplicateIds.length > 0) {
     throw new Error(formatDuplicateError('Sources/embeds', duplicateIds, 'ID'));
   }
 
-  // Check for duplicate source ranks
-  const duplicateSourceRanks = findDuplicates(sources, (v) => v.rank);
-  if (duplicateSourceRanks.length > 0) {
-    throw new Error(formatDuplicateError('Sources', duplicateSourceRanks, 'rank'));
-  }
-
-  // Check for duplicate embed ranks
-  const duplicateEmbedRanks = findDuplicates(embeds, (v) => v.rank);
-  if (duplicateEmbedRanks.length > 0) {
-    throw new Error(formatDuplicateError('Embeds', duplicateEmbedRanks, 'rank'));
-  }
+  // Rank duplicates are silently auto-fixed so a stale build or a missed
+  // rank update never crashes the player for real users.
+  const dedupedSources = deduplicateRanks(sources, 'source');
+  const dedupedEmbeds = deduplicateRanks(embeds, 'embed');
 
   return {
-    sources: sources.filter((s) => flagsAllowedInFeatures(features, s.flags)),
-    embeds: embeds.filter((e) => flagsAllowedInFeatures(features, e.flags)),
+    sources: dedupedSources.filter((s) => flagsAllowedInFeatures(features, s.flags)),
+    embeds: dedupedEmbeds.filter((e) => flagsAllowedInFeatures(features, e.flags)),
   };
 }

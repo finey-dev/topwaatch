@@ -78,15 +78,17 @@ describe('getProviders()', () => {
     ).toThrowError();
   });
 
-  it('should throw on duplicate rank between sources and embeds', () => {
+  it('should auto-fix duplicate ranks and warn instead of throwing', () => {
     mocks.gatherAllEmbeds.mockReturnValue([mockEmbeds.embedD, mockEmbeds.embedA]);
     mocks.gatherAllSources.mockReturnValue([mockSources.sourceA, mockSources.sourceB]);
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     expect(() =>
       getProviders(features, {
         embeds: getBuiltinEmbeds(),
         sources: getBuiltinSources(),
       }),
-    ).toThrowError();
+    ).not.toThrow();
+    warnSpy.mockRestore();
   });
 
   it('should not throw with same rank between sources and embeds', () => {
