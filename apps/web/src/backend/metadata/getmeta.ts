@@ -90,7 +90,7 @@ export async function getMetaFromId(
 
   if (!details) return null;
 
-  const imdbId = details.external_ids.imdb_id ?? undefined;
+  const imdbId = details.external_ids?.imdb_id ?? undefined;
 
   let seasonData: TMDBSeasonMetaResult | undefined;
 

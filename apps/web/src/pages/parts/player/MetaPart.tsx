@@ -111,6 +111,7 @@ export function MetaPart(props: MetaPartProps) {
   }
 
   if (error) {
+    console.error("[MetaPart] Failed to load metadata:", error);
     return (
       <ErrorLayout>
         <ErrorContainer>

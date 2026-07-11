@@ -486,14 +486,17 @@ export async function getMediaDetails<
   TReturn = MediaDetailReturn<T>,
 >(id: string, type: T, fetchEpisodes: boolean = true): Promise<TReturn> {
   if (type === TMDBContentTypes.MOVIE) {
-    return get<TReturn>(`/movie/${id}`, {
-      append_to_response: "external_ids,credits,release_dates",
-    });
+    // append_to_response must be in the URL, not in params — ofetch encodes
+    // params with URLSearchParams which turns commas into %2C, and TMDB
+    // ignores append_to_response when commas are percent-encoded.
+    return get<TReturn>(
+      `/movie/${id}?append_to_response=external_ids,credits,release_dates`,
+    );
   }
   if (type === TMDBContentTypes.TV) {
-    const showData = await get<TReturn>(`/tv/${id}`, {
-      append_to_response: "external_ids,credits,content_ratings",
-    });
+    const showData = await get<TReturn>(
+      `/tv/${id}?append_to_response=external_ids,credits,content_ratings`,
+    );
 
     if (!fetchEpisodes) {
       return {
