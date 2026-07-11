@@ -203,6 +203,11 @@ function rewriteStream(
 ): Stream {
   const headers = collectStreamHeaders(stream);
 
+  if (stream.type === "iframe") {
+    // Iframe streams are rendered directly in the browser — no proxy rewriting needed.
+    return stream;
+  }
+
   if (stream.type === "hls") {
     return {
       ...stream,

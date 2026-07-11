@@ -52,6 +52,7 @@ function originFromStream(): string | null {
   const state = usePlayerStore.getState();
   const src = state.source;
   if (!src) return null;
+  if (src.type === "iframe") return null;
   const url =
     src.type === "hls"
       ? src.url
@@ -72,7 +73,7 @@ function collectReleaseTokens(): string[] {
   const q = qualityToken(state.currentQuality ?? null);
   if (q) tokens.add(q);
   const src = state.source;
-  if (src) {
+  if (src && src.type !== "iframe") {
     const url =
       src.type === "hls"
         ? src.url
