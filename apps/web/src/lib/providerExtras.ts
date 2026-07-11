@@ -1,5 +1,7 @@
 // TopWaatch Nova / Orbit extras  backed by our Febbox server pipeline.
 
+import { conf } from "@/setup/config";
+
 export type FileVariant = {
   fid: string;
   name: string;
@@ -111,7 +113,9 @@ function getBackendUrl(): string {
   if (typeof window !== "undefined" && window.location.hostname === "localhost") {
     return "http://localhost:3000";
   }
-  return "https://api.topwaatch.mov";
+  const configUrl = conf().BACKEND_URL;
+  if (configUrl) return configUrl.replace(/\/$/, "");
+  return "";
 }
 
 /** Nova (MP4 / multi-quality) variant meta */

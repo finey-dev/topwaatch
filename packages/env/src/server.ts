@@ -24,11 +24,11 @@ export const env = createEnv({
     PROXY_DEFAULT_URL: z
       .string()
       .url()
-      .default("https://proxy.topwaatch.mov/proxy"),
+      .default("https://topwaatch-proxy.fineyakwoyo.workers.dev/proxy"),
     M3U8_PROXY_DEFAULT_URL: z
       .string()
       .url()
-      .default("https://proxy.topwaatch.mov"),
+      .default("https://topwaatch-proxy.fineyakwoyo.workers.dev"),
     TMDB_READ_API_KEY: z.string().optional(),
 
     // Discovery (Trakt)

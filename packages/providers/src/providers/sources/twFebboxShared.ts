@@ -34,7 +34,7 @@ export function getFebboxUserToken(): string | null {
   }
 }
 
-/** Prefer scrape context / auth store, then localhost, then legacy default. */
+/** Prefer scrape context / auth store, then window config, then localhost. */
 export function getFebboxBackendUrl(): string {
   if (serverScrapeContext.backendUrl) return serverScrapeContext.backendUrl;
   try {
@@ -48,11 +48,16 @@ export function getFebboxBackendUrl(): string {
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         return 'http://localhost:3000';
       }
+      // Fall back to the runtime config injected via public/config.js
+      const configUrl = (window as any).__CONFIG__?.VITE_BACKEND_URL;
+      if (typeof configUrl === 'string' && configUrl.length > 0) {
+        return configUrl.replace(/\/$/, '');
+      }
     }
   } catch {
     // ignore
   }
-  return 'https://api.topwaatch.mov';
+  return '';
 }
 
 export function isHlsUrl(url: string): boolean {

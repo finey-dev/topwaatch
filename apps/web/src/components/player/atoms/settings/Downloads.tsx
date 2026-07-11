@@ -401,8 +401,7 @@ export function DownloadView({ id }: { id: string }) {
   const sourceId = usePlayerStore((s) => s.sourceId);
   const canOriginalDownload =
     isTopWaatchPremiumSource(sourceId) ||
-    window.location.hostname === "topwaatch.mov" ||
-    window.location.hostname === "www.topwaatch.mov" ||
+    window.location.hostname === "topwaatch.vercel.app" ||
     window.location.hostname === "localhost";
 
   if (isDesktopApp) {

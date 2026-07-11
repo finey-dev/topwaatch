@@ -104,6 +104,13 @@ import { wecimaScraper } from './sources/wecima';
 import { zunimeScraper } from './sources/zunime';
 import { peachifyScraper } from './sources/peachify';
 import { vidcoreScraper } from './sources/vidcore';
+import { icefyScraper } from './sources/icefy';
+import { cinesuScraper } from './sources/cinesu';
+import { vixsrcScraper } from './sources/vixsrc';
+import { poprScraper } from './sources/popr';
+import { videasysScraper } from './sources/videasy';
+import { tulnexScraper } from './sources/tulnex/index';
+import { vidzeeScraper } from './sources/vidzee/index';
 
 export function gatherAllSources(): Array<Sourcerer> {
   // all sources are gathered here
@@ -155,6 +162,13 @@ export function gatherAllSources(): Array<Sourcerer> {
     watchanimeworldScraper,
     peachifyScraper,
     vidcoreScraper,
+    icefyScraper,
+    cinesuScraper,
+    vixsrcScraper,
+    poprScraper,
+    videasysScraper,
+    tulnexScraper,
+    vidzeeScraper,
   ];
 }
 

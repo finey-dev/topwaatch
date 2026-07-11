@@ -10,7 +10,7 @@ export const FEBBOX_OAUTH_MESSAGE = "topwaatch:febbox-auth";
  * After Google login, Febbox redirects to `jump` with `auth_token` (docs also show `auto_token`).
  *
  * Note: Febbox rejects non-HTTPS redirect URIs (including http://localhost).
- * Use an https:// redirect (e.g. https://topwaatch.mov/febbox).
+ * Use an https:// redirect (e.g. https://topwaatch.vercel.app/febbox).
  */
 export function getFebboxLoginUrl(clientId: string, redirectUri: string): string {
   const params = new URLSearchParams({
