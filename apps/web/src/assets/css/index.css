@@ -347,7 +347,13 @@ input[type="range"].styled-slider.slider-progress::-ms-fill-lower {
     black calc(100% - var(--mask-fade-distance)),
     transparent
   );
-  mask-image: var(-webkit-mask-image);
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black var(--mask-fade-distance),
+    black calc(100% - var(--mask-fade-distance)),
+    transparent
+  );
   z-index: 1;
 }
 
@@ -358,7 +364,12 @@ input[type="range"].styled-slider.slider-progress::-ms-fill-lower {
     black calc(100% - var(--mask-fade-distance)),
     transparent
   );
-  mask-image: var(-webkit-mask-image);
+  mask-image: linear-gradient(
+    to bottom,
+    black,
+    black calc(100% - var(--mask-fade-distance)),
+    transparent
+  );
 }
 
 .vertical-carousel-container.hide-bottom-gradient {
@@ -368,7 +379,12 @@ input[type="range"].styled-slider.slider-progress::-ms-fill-lower {
     black var(--mask-fade-distance),
     black
   );
-  mask-image: var(-webkit-mask-image);
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black var(--mask-fade-distance),
+    black
+  );
 }
 
 .vertical-carousel-container.hide-top-gradient.hide-bottom-gradient {

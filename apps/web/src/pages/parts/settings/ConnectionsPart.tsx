@@ -46,11 +46,6 @@ interface ProxyEditProps {
   setProxyTmdb: Dispatch<SetStateAction<boolean>>;
 }
 
-interface BackendEditProps {
-  backendUrl: string | null;
-  setBackendUrl: Dispatch<SetStateAction<string | null>>;
-}
-
 interface FebboxKeyProps {
   febboxKey: string | null;
   setFebboxKey: (value: string | null) => void;
@@ -186,106 +181,6 @@ function ProxyEdit({
         </>
       ) : null}
     </SettingsCard>
-  );
-}
-
-function BackendEdit({ backendUrl, setBackendUrl }: BackendEditProps) {
-  const { t } = useTranslation();
-  const user = useAuthStore();
-  const config = conf();
-  const availableBackends =
-    config.BACKEND_URLS.length > 0
-      ? config.BACKEND_URLS
-      : config.BACKEND_URL
-        ? [config.BACKEND_URL]
-        : [];
-  const currentBackendUrl =
-    backendUrl ?? (availableBackends.length > 0 ? availableBackends[0] : null);
-  const [pendingBackendUrl, setPendingBackendUrl] = useState<string | null>(
-    currentBackendUrl,
-  );
-  const confirmationModal = useModal("backend-change-confirmation");
-
-  const handleBackendSelect = (url: string | null) => {
-    if (!user.account) {
-      // No account - just update without confirmation
-      setBackendUrl(url);
-      setPendingBackendUrl(url);
-    } else if (url !== currentBackendUrl) {
-      // User is logged in and changing backend - show confirmation
-      setPendingBackendUrl(url);
-      confirmationModal.show();
-    } else {
-      // Same backend - just update
-      setBackendUrl(url);
-      setPendingBackendUrl(url);
-    }
-  };
-
-  const handleConfirmChange = () => {
-    setBackendUrl(pendingBackendUrl);
-    confirmationModal.hide();
-  };
-
-  return (
-    <>
-      <SettingsCard>
-        <div className="my-3">
-          <p className="text-white font-bold mb-3">
-            {t("settings.connections.server.label")}
-          </p>
-          <p className="max-w-[30rem] font-medium">
-            <Trans i18nKey="settings.connections.server.description">
-              <MwLink to="https://p-stream.github.io/docs/backend/deploy">
-                {t("settings.connections.server.documentation")}
-              </MwLink>
-            </Trans>
-          </p>
-        </div>
-        {(availableBackends.length > 0 || currentBackendUrl) && (
-          <>
-            <Divider marginClass="my-6 px-8 box-content -mx-8" />
-            <p className="text-white font-bold mb-3">
-              {t("settings.connections.server.selectBackend")}
-            </p>
-            {availableBackends.length > 0 ? (
-              <BackendSelector
-                selectedUrl={currentBackendUrl}
-                onSelect={handleBackendSelect}
-                availableUrls={availableBackends}
-                showCustom
-              />
-            ) : (
-              <AuthInputBox
-                onChange={setBackendUrl}
-                value={backendUrl ?? ""}
-                placeholder="https://"
-              />
-            )}
-          </>
-        )}
-      </SettingsCard>
-      {user.account && (
-        <Modal id={confirmationModal.id}>
-          <ModalCard>
-            <Heading2 className="!mt-0 !mb-4">
-              {t("settings.connections.server.changeWarningTitle")}
-            </Heading2>
-            <Paragraph className="!mt-1 !mb-6">
-              {t("settings.connections.server.changeWarning")}
-            </Paragraph>
-            <div className="flex justify-end gap-3">
-              <Button theme="secondary" onClick={confirmationModal.hide}>
-                {t("settings.connections.server.cancel")}
-              </Button>
-              <Button theme="purple" onClick={handleConfirmChange}>
-                {t("settings.connections.server.confirm")}
-              </Button>
-            </div>
-          </ModalCard>
-        </Modal>
-      )}
-    </>
   );
 }
 
