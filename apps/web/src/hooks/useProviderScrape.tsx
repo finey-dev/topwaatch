@@ -196,6 +196,7 @@ export function useScrape() {
   );
   const preferredEmbedOrder = usePreferencesStore((s) => s.embedOrder);
   const enableEmbedOrder = usePreferencesStore((s) => s.enableEmbedOrder);
+  const febboxKey = usePreferencesStore((s) => s.febboxKey);
   const account = useAuthStore((s) => s.account);
 
   const startScraping = useCallback(
@@ -265,7 +266,10 @@ export function useScrape() {
       );
 
       // Cinema (Nova/Orbit) always first when Febbox is connected
-      filteredSourceOrder = prioritizeCinemaSourceIds(filteredSourceOrder);
+      filteredSourceOrder = prioritizeCinemaSourceIds(
+        filteredSourceOrder,
+        febboxKey,
+      );
 
       const allFailedEmbedIds = Object.values(failedEmbeds).flat();
 
@@ -282,6 +286,7 @@ export function useScrape() {
         embedOrder: filteredEmbedOrder,
         excludeSourceIds: failedSources,
         skipHevcFileStreams: !browserCanPlayHevc(),
+        febboxKey,
         account,
         onEvent: handleSseEvent,
       });
@@ -297,6 +302,7 @@ export function useScrape() {
       enableLastSuccessfulSource,
       preferredEmbedOrder,
       enableEmbedOrder,
+      febboxKey,
       account,
     ],
   );

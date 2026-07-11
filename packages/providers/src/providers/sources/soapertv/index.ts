@@ -151,7 +151,8 @@ export const soaperTvScraper = makeSourcerer({
   id: 'soapertv',
   name: 'SoaperTV',
   rank: 130,
-  disabled: true,
+  // Re-enabled after host probe (soaper.cc returns 200). Watch for scrape quality.
+  disabled: false,
   flags: [flags.CORS_ALLOWED],
   scrapeMovie: universalScraper,
   scrapeShow: universalScraper,

@@ -7,42 +7,12 @@ import { Caption, labelToLanguageCode } from '../captions';
 import {
   buildFebboxStreamResults,
   febboxPlaybackHeaders,
+  getFebboxBackendUrl,
+  getFebboxUserToken,
   streamMediaType,
 } from './twFebboxShared';
 
 const META_KEY = '__TW::febboxMeta';
-
-function getUserToken(): string | null {
-  try {
-    if (typeof window === 'undefined') return null;
-    const prefData = window.localStorage.getItem('__MW::preferences');
-    if (!prefData) return null;
-    const parsed = JSON.parse(prefData);
-    return parsed?.state?.febboxKey || null;
-  } catch {
-    return null;
-  }
-}
-
-/** Prefer auth-store backend URL, fall back to common local/prod defaults. */
-const getBackendUrl = (): string => {
-  try {
-    if (typeof window !== 'undefined') {
-      const auth = window.localStorage.getItem('__MW::auth');
-      if (auth) {
-        const parsed = JSON.parse(auth);
-        const url = parsed?.state?.backendUrl;
-        if (typeof url === 'string' && url.length > 0) return url.replace(/\/$/, '');
-      }
-    }
-  } catch {
-    // ignore
-  }
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return 'http://localhost:3000';
-  }
-  return 'https://api.topwaatch.mov';
-};
 
 interface StreamEntry {
   type: 'hls' | 'mp4';
@@ -142,12 +112,12 @@ function parseCaptions(data: StreamData): Caption[] {
 }
 
 async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promise<SourcererOutput> {
-  const userToken = getUserToken();
+  const userToken = getFebboxUserToken();
   if (!userToken) throw new NotFoundError('Requires a Febbox account  connect one in Settings');
 
   ctx.progress(40);
 
-  const base = getBackendUrl();
+  const base = getFebboxBackendUrl();
   let apiUrl = `${base}/febbox/fedapi?name=${encodeURIComponent(ctx.media.title)}&year=${ctx.media.releaseYear}&ui=${encodeURIComponent(userToken)}`;
   if (ctx.media.type === 'show') {
     apiUrl += `&season=${ctx.media.season.number}&episode=${ctx.media.episode.number}`;

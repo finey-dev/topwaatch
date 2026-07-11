@@ -2,6 +2,59 @@ import { flags } from '@/entrypoint/utils/targets';
 import { Caption } from '@/providers/captions';
 import { Stream } from '@/providers/streams';
 
+/** Server scrape context — Cinema scrapers read this when `window` is unavailable. */
+export type FebboxScrapeContext = {
+  febboxKey?: string | null;
+  backendUrl?: string | null;
+};
+
+let serverScrapeContext: FebboxScrapeContext = {};
+
+export function setFebboxScrapeContext(ctx: FebboxScrapeContext) {
+  serverScrapeContext = {
+    febboxKey: ctx.febboxKey?.trim() || null,
+    backendUrl: ctx.backendUrl?.replace(/\/$/, '') || null,
+  };
+}
+
+export function clearFebboxScrapeContext() {
+  serverScrapeContext = {};
+}
+
+export function getFebboxUserToken(): string | null {
+  if (serverScrapeContext.febboxKey) return serverScrapeContext.febboxKey;
+  try {
+    if (typeof window === 'undefined') return null;
+    const prefData = window.localStorage.getItem('__MW::preferences');
+    if (!prefData) return null;
+    const parsed = JSON.parse(prefData);
+    return parsed?.state?.febboxKey || null;
+  } catch {
+    return null;
+  }
+}
+
+/** Prefer scrape context / auth store, then localhost, then legacy default. */
+export function getFebboxBackendUrl(): string {
+  if (serverScrapeContext.backendUrl) return serverScrapeContext.backendUrl;
+  try {
+    if (typeof window !== 'undefined') {
+      const auth = window.localStorage.getItem('__MW::auth');
+      if (auth) {
+        const parsed = JSON.parse(auth);
+        const url = parsed?.state?.backendUrl;
+        if (typeof url === 'string' && url.length > 0) return url.replace(/\/$/, '');
+      }
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'http://localhost:3000';
+      }
+    }
+  } catch {
+    // ignore
+  }
+  return 'https://api.topwaatch.mov';
+}
+
 export function isHlsUrl(url: string): boolean {
   return /\.m3u8(\?|#|$)/i.test(url) || /\/hls\//i.test(url);
 }

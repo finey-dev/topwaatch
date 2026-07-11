@@ -5,6 +5,8 @@ import {
   makeProviders,
   makeSimpleProxyFetcher,
   makeStandardFetcher,
+  setFebboxScrapeContext,
+  clearFebboxScrapeContext,
   setM3U8ProxyUrl,
   targets,
   type FullScraperEvents,
@@ -30,6 +32,8 @@ export const scrapeInputSchema = z.object({
   embedOrder: z.array(z.string()).optional(),
   excludeSourceIds: z.array(z.string()).optional(),
   skipHevcFileStreams: z.coerce.boolean().optional(),
+  /** Febbox UI cookie token — required for Nova/Orbit on server scrapes. */
+  febboxKey: z.string().min(1).optional(),
 });
 
 export type ScrapeInput = z.infer<typeof scrapeInputSchema>;
@@ -351,16 +355,34 @@ export async function runScrapeForUser(
   events?: FullScraperEvents,
 ): Promise<ScrapeResult> {
   const { proxyUrl, m3u8Base } = await resolveProxyUrls(userId);
-  const { output, attempts, sourceIds } = await runScrape(
-    input,
-    proxyUrl,
-    m3u8Base,
-    events,
-  );
 
-  if (!output) {
-    return { ok: false, ...notFoundPayload(attempts, sourceIds) };
+  let febboxKey = input.febboxKey?.trim() || null;
+  if (!febboxKey && userId) {
+    const settings = await db.query.userSettings.findFirst({
+      where: eq(userSettings.id, userId),
+    });
+    febboxKey = settings?.febboxKey?.trim() || null;
   }
 
-  return { ok: true, ...rewriteOutput(output, proxyUrl, m3u8Base) };
+  setFebboxScrapeContext({
+    febboxKey,
+    backendUrl: env.BETTER_AUTH_URL,
+  });
+
+  try {
+    const { output, attempts, sourceIds } = await runScrape(
+      input,
+      proxyUrl,
+      m3u8Base,
+      events,
+    );
+
+    if (!output) {
+      return { ok: false, ...notFoundPayload(attempts, sourceIds) };
+    }
+
+    return { ok: true, ...rewriteOutput(output, proxyUrl, m3u8Base) };
+  } finally {
+    clearFebboxScrapeContext();
+  }
 }

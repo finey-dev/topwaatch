@@ -64,6 +64,7 @@ function parseQueryInput(c: {
     embedOrder: parseCsvQuery(c.req.query("embedOrder")),
     excludeSourceIds: parseCsvQuery(c.req.query("excludeSourceIds")),
     skipHevcFileStreams: c.req.query("skipHevcFileStreams"),
+    febboxKey: c.req.query("febboxKey") || undefined,
   });
 }
 

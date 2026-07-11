@@ -7,23 +7,13 @@ import { Caption, labelToLanguageCode } from '../captions';
 import {
   buildFebboxStreamResults,
   febboxPlaybackHeaders,
+  getFebboxBackendUrl,
+  getFebboxUserToken,
   isHlsUrl,
   streamMediaType,
 } from './twFebboxShared';
 
 const META_KEY = '__TW::febboxMeta';
-
-const getUserToken = (): string | null => {
-  try {
-    if (typeof window === 'undefined') return null;
-    const prefData = window.localStorage.getItem('__MW::preferences');
-    if (!prefData) return null;
-    const parsed = JSON.parse(prefData);
-    return parsed?.state?.febboxKey || null;
-  } catch {
-    return null;
-  }
-};
 
 const getRegion = (): string | null => {
   try {
@@ -35,25 +25,6 @@ const getRegion = (): string | null => {
   } catch {
     return null;
   }
-};
-
-const getBackendUrl = (): string => {
-  try {
-    if (typeof window !== 'undefined') {
-      const auth = window.localStorage.getItem('__MW::auth');
-      if (auth) {
-        const parsed = JSON.parse(auth);
-        const url = parsed?.state?.backendUrl;
-        if (typeof url === 'string' && url.length > 0) return url.replace(/\/$/, '');
-      }
-    }
-  } catch {
-    // ignore
-  }
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return 'http://localhost:3000';
-  }
-  return 'https://api.topwaatch.mov';
 };
 
 function selectSubdomainByRegion(input: string | null): string | null {
@@ -186,11 +157,11 @@ function parseCaptions(data: StreamData): Caption[] {
 }
 
 async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promise<SourcererOutput> {
-  const userToken = getUserToken();
+  const userToken = getFebboxUserToken();
   if (!userToken) throw new NotFoundError('Requires a Febbox account  connect one in Settings');
 
   const region = getRegion();
-  const base = getBackendUrl();
+  const base = getFebboxBackendUrl();
   ctx.progress(50);
 
   const apiUrl =

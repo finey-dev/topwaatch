@@ -65,6 +65,7 @@ function mediaToQuery(
     embedOrder?: string[];
     excludeSourceIds?: string[];
     skipHevcFileStreams?: boolean;
+    febboxKey?: string | null;
   },
 ): URLSearchParams {
   const params = new URLSearchParams({
@@ -93,6 +94,9 @@ function mediaToQuery(
   if (extras?.skipHevcFileStreams) {
     params.set("skipHevcFileStreams", "true");
   }
+  if (extras?.febboxKey) {
+    params.set("febboxKey", extras.febboxKey);
+  }
   return params;
 }
 
@@ -103,6 +107,7 @@ function mediaToScrapeInput(
     embedOrder?: string[];
     excludeSourceIds?: string[];
     skipHevcFileStreams?: boolean;
+    febboxKey?: string | null;
   },
 ): Record<string, unknown> {
   const body: Record<string, unknown> = {
@@ -115,6 +120,7 @@ function mediaToScrapeInput(
     embedOrder: extras?.embedOrder,
     excludeSourceIds: extras?.excludeSourceIds,
     skipHevcFileStreams: extras?.skipHevcFileStreams,
+    febboxKey: extras?.febboxKey || undefined,
   };
   if (media.type === "show") {
     body.seasonId = media.season.tmdbId;
@@ -145,6 +151,7 @@ export interface ServerScrapeOptions {
   embedOrder?: string[];
   excludeSourceIds?: string[];
   skipHevcFileStreams?: boolean;
+  febboxKey?: string | null;
   account?: AccountWithToken | null;
   signal?: AbortSignal;
   onEvent?: (evt: ScrapeSseEvent) => void;
