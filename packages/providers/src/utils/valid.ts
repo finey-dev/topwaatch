@@ -3,6 +3,8 @@
 import { bombtheirishScraper } from '@/providers/archive/sources/bombtheirish';
 import { streamtapeScraper } from '@/providers/embeds/streamtape';
 import { warezcdnembedMp4Scraper } from '@/providers/embeds/warezcdn/mp4';
+import { FedAPIScraper } from '@/providers/sources/fedapi';
+import { FedAPIDBScraper } from '@/providers/sources/fedapidb';
 import { Stream } from '@/providers/streams';
 import { IndividualEmbedRunnerOptions } from '@/runners/individualRunner';
 import { ProviderRunnerOptions } from '@/runners/runner';
@@ -20,6 +22,9 @@ const SKIP_VALIDATION_CHECK_IDS = [
 const UNPROXIED_VALIDATION_CHECK_IDS = [
   // sources here are always proxied, so we dont need to validate with a proxy
   bombtheirishScraper.id, // this one is dead, but i'll keep it here for now
+  // Febbox/shegu CDN URLs are KEY-signed to the browser IP — proxied validation 404s.
+  FedAPIScraper.id,
+  FedAPIDBScraper.id,
 ];
 
 export function isValidStream(stream: Stream | undefined): boolean {

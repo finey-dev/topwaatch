@@ -26,24 +26,43 @@ export function makeQueId(index: number, start: number, end: number): string {
   return `${index}-${start}-${end}`;
 }
 
-export function convertSubtitlesToVtt(text: string): string {
+function assertSubtitlePayload(text: string): string {
   const textTrimmed = text.trim();
   if (textTrimmed === "") {
     throw new Error("Given text is empty");
   }
-  const vtt = convert(textTrimmed, "vtt");
+  if (
+    textTrimmed.startsWith("<?xml") ||
+    textTrimmed.startsWith("<Error") ||
+    /^<html/i.test(textTrimmed)
+  ) {
+    throw new Error("Invalid subtitle format");
+  }
+  return textTrimmed;
+}
+
+export function convertSubtitlesToVtt(
+  text: string,
+  fromFormat?: string,
+): string {
+  const textTrimmed = assertSubtitlePayload(text);
+  const vtt = fromFormat
+    ? convert(textTrimmed, { from: fromFormat, to: "vtt" })
+    : convert(textTrimmed, "vtt");
   if (detect(vtt) === "") {
     throw new Error("Invalid subtitle format");
   }
   return vtt;
 }
 
-export function convertSubtitlesToSrt(text: string): string {
-  const textTrimmed = text.trim();
-  if (textTrimmed === "") {
-    throw new Error("Given text is empty");
-  }
-  const srt = convert(textTrimmed, "srt");
+export function convertSubtitlesToSrt(
+  text: string,
+  fromFormat?: string,
+): string {
+  const textTrimmed = assertSubtitlePayload(text);
+  const srt = fromFormat
+    ? convert(textTrimmed, { from: fromFormat, to: "srt" })
+    : convert(textTrimmed, "srt");
   if (detect(srt) === "") {
     throw new Error("Invalid subtitle format");
   }

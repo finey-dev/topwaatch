@@ -186,7 +186,9 @@ export function buildFebboxStreamResults(opts: {
         playlist: hls.url,
         type: 'hls',
         headers: opts.headers,
-        flags: [flags.CORS_ALLOWED, flags.IP_LOCKED],
+        // IP_LOCKED is disallowed for browser targets and would drop HLS before validation.
+        // Segment URLs are loaded direct via playlistNeedsDirectSegments at playback.
+        flags: [flags.CORS_ALLOWED],
       }
     : null;
 

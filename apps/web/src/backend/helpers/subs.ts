@@ -50,6 +50,9 @@ export async function downloadCaption(
     }
   } else {
     const response = await fetch(caption.url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch subtitle: ${response.status}`);
+    }
     const contentType = response.headers.get("content-type") || "";
     const charset =
       contentType.split("charset=")[1]?.trim().toLowerCase() || "utf-8";
@@ -62,7 +65,9 @@ export async function downloadCaption(
   }
   if (!data) throw new Error("failed to get caption data");
 
-  const output = convertSubtitlesToSrt(data);
+  const fromFormat =
+    caption.type && caption.type !== "unknown" ? caption.type : undefined;
+  const output = convertSubtitlesToSrt(data, fromFormat);
   downloadCache.set(caption.url, output, expirySeconds);
   return output;
 }

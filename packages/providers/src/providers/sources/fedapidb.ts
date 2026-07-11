@@ -52,8 +52,9 @@ function selectSubdomainByRegion(input: string | null): string | null {
 
 function rewriteSheguSubdomain(originalUrl: string, subdomain: string): string {
   try {
-    // Febbox signed CDN URLs are bound to host + client IP  rewriting breaks them.
+    // Febbox signed CDN URLs are bound to host + client IP — rewriting breaks them.
     if (/[?&](sign|IP)=/i.test(originalUrl)) return originalUrl;
+    if (/[?&]KEY\d+=/i.test(originalUrl)) return originalUrl;
     const parsed = new URL(originalUrl);
     if (parsed.hostname.endsWith('.shegu.net')) {
       parsed.hostname = `${subdomain}.shegu.net`;
