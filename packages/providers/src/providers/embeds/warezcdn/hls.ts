@@ -23,7 +23,7 @@ export const warezcdnembedHlsScraper = makeEmbed({
   name: 'WarezCDN HLS',
   // method no longer works
   disabled: true,
-  rank: 83,
+  rank: 84,
   flags: [flags.IP_LOCKED],
   async scrape(ctx) {
     const decryptedId = await getDecryptedId(ctx);
