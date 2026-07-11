@@ -13,15 +13,18 @@ window.__CONFIG__ = {
   VITE_NORMAL_ROUTER: true,
 
   // The backend URL(s) to communicate with - can be a single URL or comma-separated list (e.g., "https://server1.com,https://server2.com")
-  VITE_BACKEND_URL: "https://topwaatch-server.vercel.app",
+  // Set VITE_BACKEND_URL as a Vercel/build environment variable instead of here.
+  VITE_BACKEND_URL: null,
 
   // A comma separated list of disallowed IDs in the case of a DMCA claim - in the format "series-<id>" and "movie-<id>"
   VITE_DISALLOWED_IDS: "",
+
   // Allowing TopWaatch 4K (Febbox) to be enabled.
   VITE_ALLOW_FEBBOX_KEY: "true",
 
   // Febbox web authorize  https://www.febbox.com/open/client
-  // Redirect URI must be HTTPS (Febbox rejects http://localhost)
-  VITE_FEBBOX_CLIENT_ID: "FEBBOX_CLIENT_ID_PLACEHOLDER",
-  VITE_FEBBOX_REDIRECT_URI: "https://topwaatch.vercel.app/febbox",
+  // Set VITE_FEBBOX_CLIENT_ID and VITE_FEBBOX_REDIRECT_URI as Vercel/build environment variables.
+  // Do NOT put real values here — this file is public and tracked in git.
+  VITE_FEBBOX_CLIENT_ID: null,
+  VITE_FEBBOX_REDIRECT_URI: null,
 };
