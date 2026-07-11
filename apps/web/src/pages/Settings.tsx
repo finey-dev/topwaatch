@@ -23,6 +23,7 @@ import { useBackendUrl } from "@/hooks/auth/useBackendUrl";
 import { useIsIOS, useIsMobile, useIsPWA } from "@/hooks/useIsMobile";
 import { useSettingsState } from "@/hooks/useSettingsState";
 import { AccountOverviewPart } from "@/pages/parts/settings/AccountOverviewPart";
+import { AppearancePart } from "@/pages/parts/settings/AppearancePart";
 import { CaptionsPart } from "@/pages/parts/settings/CaptionsPart";
 import { ConnectionsPart } from "@/pages/parts/settings/ConnectionsPart";
 import { LetterboxdImportPart } from "@/pages/parts/settings/LetterboxdImportPart";
@@ -154,6 +155,7 @@ function SettingsPageContent() {
       const validCategories = [
         "settings-account",
         "settings-preferences",
+        "settings-appearance",
         "settings-captions",
         "settings-connection",
         "settings-import",
@@ -205,6 +207,7 @@ function SettingsPageContent() {
         const validCategories = [
           "settings-account",
           "settings-preferences",
+          "settings-appearance",
           "settings-captions",
           "settings-connection",
           "settings-import",
@@ -804,7 +807,9 @@ function SettingsPageContent() {
         state.enableDoubleClickToSeek.changed ||
         state.enableAutoResumeOnPlaybackError.changed ||
         state.enablePauseOverlay.changed ||
-        state.customTheme.changed
+        state.customTheme.changed ||
+        state.savedCustomThemes.changed ||
+        state.hiddenDefaultThemes.changed
       ) {
         await updateSettings(backendUrl, account, {
           applicationLanguage: state.appLanguage.state,
@@ -1032,6 +1037,38 @@ function SettingsPageContent() {
               }
             />
             <ProviderMetricsPart />
+          </div>
+        )}
+        {(searchQuery.trim() ||
+          !selectedCategory ||
+          selectedCategory === "settings-appearance") && (
+          <div id="settings-appearance">
+            <AppearancePart
+              active={state.theme.state ?? "default"}
+              inUse={activeTheme ?? "default"}
+              setTheme={state.theme.set}
+              enableDiscover={state.enableDiscover.state}
+              setEnableDiscover={state.enableDiscover.set}
+              enableFeatured={state.enableFeatured.state}
+              setEnableFeatured={state.enableFeatured.set}
+              enableImageLogos={state.enableImageLogos.state}
+              setEnableImageLogos={state.enableImageLogos.set}
+              enablePauseOverlay={state.enablePauseOverlay.state}
+              setEnablePauseOverlay={state.enablePauseOverlay.set}
+              enableCarouselView={state.enableCarouselView.state}
+              setEnableCarouselView={state.enableCarouselView.set}
+              enableMinimalCards={state.enableMinimalCards.state}
+              setEnableMinimalCards={state.enableMinimalCards.set}
+              forceCompactEpisodeView={state.forceCompactEpisodeView.state}
+              setForceCompactEpisodeView={state.forceCompactEpisodeView.set}
+              homeSectionOrder={state.homeSectionOrder.state}
+              setHomeSectionOrder={state.homeSectionOrder.set}
+              enableLowPerformanceMode={state.enableLowPerformanceMode.state}
+              savedCustomThemes={state.savedCustomThemes.state}
+              setSavedCustomThemes={state.savedCustomThemes.set}
+              hiddenDefaultThemes={state.hiddenDefaultThemes.state}
+              setHiddenDefaultThemes={state.hiddenDefaultThemes.set}
+            />
           </div>
         )}
         {(searchQuery.trim() ||

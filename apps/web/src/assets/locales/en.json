@@ -1379,7 +1379,7 @@
         "modalDescription": "Show the details modal when you click on a media card instead of going to the watch page.",
         "modalLabel": "Details modal",
         "logos": "Image logos",
-        "logosDescription": "Show image logos instead of text titles in the details modal and featured section.",
+        "logosDescription": "Show image logos instead of text titles in the featured section.",
         "logosNotice": "Most of the time, logos are English only. Other languages might want to disable this!",
         "logosLabel": "Image logos",
         "carouselView": "Carousel view",

@@ -344,9 +344,6 @@ export function AppearancePart(props: {
   enableFeatured: boolean;
   setEnableFeatured: (v: boolean) => void;
 
-  enableDetailsModal: boolean;
-  setEnableDetailsModal: (v: boolean) => void;
-
   enableImageLogos: boolean;
   setEnableImageLogos: (v: boolean) => void;
 
@@ -408,7 +405,6 @@ export function AppearancePart(props: {
     enableLowPerformanceMode,
     setEnableDiscover,
     setEnableFeatured,
-    setEnableDetailsModal,
     setEnableImageLogos,
     setEnablePauseOverlay,
     setForceCompactEpisodeView,
@@ -419,7 +415,6 @@ export function AppearancePart(props: {
     if (enableLowPerformanceMode) {
       setEnableDiscover(false);
       setEnableFeatured(false);
-      setEnableDetailsModal(false);
       setEnableImageLogos(false);
       setEnablePauseOverlay(false);
       setForceCompactEpisodeView(true);
@@ -428,7 +423,6 @@ export function AppearancePart(props: {
     enableLowPerformanceMode,
     setEnableDiscover,
     setEnableFeatured,
-    setEnableDetailsModal,
     setEnableImageLogos,
     setEnablePauseOverlay,
     setForceCompactEpisodeView,
@@ -524,13 +518,6 @@ export function AppearancePart(props: {
                 onChange={(v) => props.setEnableFeatured(v)}
               />
             )}
-            <ToggleRow
-              title={t("settings.appearance.options.modalLabel")}
-              description={t("settings.appearance.options.modalDescription")}
-              enabled={props.enableDetailsModal}
-              onChange={(v) => props.setEnableDetailsModal(v)}
-              disabled={props.enableLowPerformanceMode}
-            />
             <ToggleRow
               title={t("settings.appearance.options.logosLabel")}
               description={t("settings.appearance.options.logosDescription")}
