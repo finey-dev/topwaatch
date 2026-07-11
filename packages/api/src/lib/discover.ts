@@ -29,17 +29,6 @@ export function emptyList(): TraktListResponse {
   return { movie_tmdb_ids: [], tv_tmdb_ids: [], count: 0 };
 }
 
-function traktHeaders(): Record<string, string> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    "trakt-api-version": "2",
-  };
-  if (env.TRAKT_CLIENT_ID) {
-    headers["trakt-api-key"] = env.TRAKT_CLIENT_ID;
-  }
-  return headers;
-}
-
 function tmdbHeaders(): Record<string, string> {
   const key = env.TMDB_READ_API_KEY ?? "";
   if (key.startsWith("eyJ")) {
@@ -77,74 +66,12 @@ export async function tmdbGet<T>(
   return res.json() as Promise<T>;
 }
 
-export async function traktGet<T>(path: string): Promise<T> {
-  if (!env.TRAKT_CLIENT_ID) {
-    throw new Error("TRAKT_CLIENT_ID is not configured");
-  }
-  const res = await fetch(`https://api.trakt.tv${path}`, {
-    headers: traktHeaders(),
-  });
-  if (!res.ok) {
-    throw new Error(`Trakt ${path} failed: ${res.status}`);
-  }
-  return res.json() as Promise<T>;
-}
-
-function extractTmdbIds(
-  items: Array<{
-    movie?: { ids?: { tmdb?: number } };
-    show?: { ids?: { tmdb?: number } };
-    ids?: { tmdb?: number };
-  }>,
-): TraktListResponse {
-  const movie_tmdb_ids: number[] = [];
-  const tv_tmdb_ids: number[] = [];
-
-  for (const item of items) {
-    if (item.movie?.ids?.tmdb) movie_tmdb_ids.push(item.movie.ids.tmdb);
-    else if (item.show?.ids?.tmdb) tv_tmdb_ids.push(item.show.ids.tmdb);
-    else if (item.ids?.tmdb) movie_tmdb_ids.push(item.ids.tmdb);
-  }
-
-  return {
-    movie_tmdb_ids,
-    tv_tmdb_ids,
-    count: movie_tmdb_ids.length + tv_tmdb_ids.length,
-  };
-}
-
-async function fromTraktMovies(path: string): Promise<TraktListResponse> {
-  const data = await traktGet<
-    Array<{ movie?: { ids?: { tmdb?: number } }; ids?: { tmdb?: number } }>
-  >(path);
-  return extractTmdbIds(data);
-}
-
-async function fromTraktShows(path: string): Promise<TraktListResponse> {
-  const data = await traktGet<
-    Array<{ show?: { ids?: { tmdb?: number } }; ids?: { tmdb?: number } }>
-  >(path);
-  const tv_tmdb_ids: number[] = [];
-  for (const item of data) {
-    const id = item.show?.ids?.tmdb ?? item.ids?.tmdb;
-    if (id) tv_tmdb_ids.push(id);
-  }
-  return { movie_tmdb_ids: [], tv_tmdb_ids, count: tv_tmdb_ids.length };
-}
-
-async function fromTmdbWatchProvider(
+async function fromTmdbPath(
   mediaType: "movie" | "tv",
-  providerId: string,
+  path: string,
+  params: Record<string, string> = {},
 ): Promise<TraktListResponse> {
-  const data = await tmdbGet<{ results: Array<{ id: number }> }>(
-    `/discover/${mediaType}`,
-    {
-      with_watch_providers: providerId,
-      watch_region: "US",
-      sort_by: "popularity.desc",
-      page: "1",
-    },
-  );
+  const data = await tmdbGet<{ results: Array<{ id: number }> }>(path, params);
   const ids = data.results.map((r) => r.id);
   if (mediaType === "movie") {
     return { movie_tmdb_ids: ids, tv_tmdb_ids: [], count: ids.length };
@@ -152,35 +79,50 @@ async function fromTmdbWatchProvider(
   return { movie_tmdb_ids: [], tv_tmdb_ids: ids, count: ids.length };
 }
 
-async function fromTraktListSearch(query: string): Promise<TraktListResponse> {
-  try {
-    const lists = await traktGet<
-      Array<{ list?: { ids?: { trakt?: number } }; ids?: { trakt?: number } }>
-    >(`/search/list?query=${encodeURIComponent(query)}&limit=1`);
-    const listId = lists[0]?.list?.ids?.trakt ?? lists[0]?.ids?.trakt;
-    if (!listId) return emptyList();
+async function fromTmdbWatchProvider(
+  mediaType: "movie" | "tv",
+  providerId: string,
+): Promise<TraktListResponse> {
+  return fromTmdbPath(mediaType, `/discover/${mediaType}`, {
+    with_watch_providers: providerId,
+    watch_region: "US",
+    sort_by: "popularity.desc",
+    page: "1",
+  });
+}
 
-    const items = await traktGet<
-      Array<{
-        movie?: { ids?: { tmdb?: number } };
-        show?: { ids?: { tmdb?: number } };
-        type?: string;
-      }>
-    >(`/lists/${listId}/items/movie,show?limit=100`);
-    return extractTmdbIds(items);
+/** Curated/theme lists via TMDB keyword search + discover (no Trakt required). */
+async function fromTmdbKeywordSearch(query: string): Promise<TraktListResponse> {
+  try {
+    const keywords = await tmdbGet<{ results: Array<{ id: number }> }>(
+      "/search/keyword",
+      { query, page: "1" },
+    );
+    const keywordId = keywords.results[0]?.id;
+    if (!keywordId) return emptyList();
+
+    return fromTmdbPath("movie", "/discover/movie", {
+      with_keywords: String(keywordId),
+      sort_by: "popularity.desc",
+      page: "1",
+    });
   } catch {
     return emptyList();
   }
 }
 
+/**
+ * Prefer TMDB for discover carousels. Trakt is optional enrichment only —
+ * Vercel/datacenter IPs often get Trakt 403 even with a valid client id.
+ */
 export const LIST_HANDLERS: Record<string, () => Promise<TraktListResponse>> = {
-  top10: () => fromTraktMovies("/movies/trending?limit=20"),
-  top: () => fromTraktMovies("/movies/popular?limit=100"),
-  popularmovies: () => fromTraktMovies("/movies/popular?limit=50"),
-  populartv: () => fromTraktShows("/shows/popular?limit=50"),
-  latest: () => fromTraktMovies("/movies/anticipated?limit=50"),
-  latest4k: () => fromTraktMovies("/movies/boxoffice"),
-  latesttv: () => fromTraktShows("/shows/anticipated?limit=50"),
+  top10: () => fromTmdbPath("movie", "/trending/movie/week"),
+  top: () => fromTmdbPath("movie", "/movie/popular"),
+  popularmovies: () => fromTmdbPath("movie", "/movie/popular"),
+  populartv: () => fromTmdbPath("tv", "/tv/popular"),
+  latest: () => fromTmdbPath("movie", "/movie/upcoming"),
+  latest4k: () => fromTmdbPath("movie", "/movie/now_playing"),
+  latesttv: () => fromTmdbPath("tv", "/tv/on_the_air"),
   netflixmovies: () => fromTmdbWatchProvider("movie", "8"),
   netflixtv: () => fromTmdbWatchProvider("tv", "8"),
   primemovies: () => fromTmdbWatchProvider("movie", "9"),
@@ -195,17 +137,17 @@ export const LIST_HANDLERS: Record<string, () => Promise<TraktListResponse>> = {
   appletv: () => fromTmdbWatchProvider("tv", "350"),
   paramountmovies: () => fromTmdbWatchProvider("movie", "531"),
   paramounttv: () => fromTmdbWatchProvider("tv", "531"),
-  christmas: () => fromTraktListSearch("christmas movies"),
-  halloween: () => fromTraktListSearch("halloween movies"),
-  narrative: () => fromTraktListSearch("letterboxd narrative"),
-  never: () => fromTraktListSearch("never heard of"),
-  LGBTQ: () => fromTraktListSearch("lgbt movies"),
-  mindfuck: () => fromTraktListSearch("mindfuck"),
-  truestory: () => fromTraktListSearch("true story"),
+  christmas: () => fromTmdbKeywordSearch("christmas"),
+  halloween: () => fromTmdbKeywordSearch("halloween"),
+  narrative: () => fromTmdbKeywordSearch("based on novel or book"),
+  never: () => fromTmdbPath("movie", "/movie/top_rated", { page: "5" }),
+  LGBTQ: () => fromTmdbKeywordSearch("lgbt"),
+  mindfuck: () => fromTmdbKeywordSearch("mind-bending"),
+  truestory: () => fromTmdbKeywordSearch("based on true story"),
   discover: async () => {
     const [movies, shows] = await Promise.all([
-      fromTraktMovies("/movies/trending?limit=30").catch(() => emptyList()),
-      fromTraktShows("/shows/trending?limit=30").catch(() => emptyList()),
+      fromTmdbPath("movie", "/trending/movie/week").catch(() => emptyList()),
+      fromTmdbPath("tv", "/trending/tv/week").catch(() => emptyList()),
     ]);
     return {
       movie_tmdb_ids: movies.movie_tmdb_ids,
@@ -245,9 +187,7 @@ export async function buildDiscoverAggregate() {
     topRatedShows,
     nowPlayingMovies,
     onTheAir,
-    trending,
-    mostWatched,
-    lastWeekend,
+    trendingMovies,
   ] = await Promise.all([
     tmdbGet<{ results: unknown[] }>("/movie/popular"),
     tmdbGet<{ results: unknown[] }>("/tv/popular"),
@@ -257,24 +197,16 @@ export async function buildDiscoverAggregate() {
     tmdbGet("/tv/top_rated"),
     tmdbGet<{ results: Array<{ vote_average: number }> }>("/movie/now_playing"),
     tmdbGet<{ results: Array<{ vote_average: number }> }>("/tv/on_the_air"),
-    env.TRAKT_CLIENT_ID
-      ? traktGet("/movies/popular?limit=20").catch(() => [])
-      : Promise.resolve([]),
-    env.TRAKT_CLIENT_ID
-      ? traktGet("/movies/watched/weekly?limit=20").catch(() => [])
-      : Promise.resolve([]),
-    env.TRAKT_CLIENT_ID
-      ? traktGet("/movies/boxoffice").catch(() => [])
-      : Promise.resolve([]),
+    tmdbGet<{ results: unknown[] }>("/trending/movie/week"),
   ]);
 
   const sortByVote = <T extends { vote_average: number }>(arr: T[]) =>
     [...arr].sort((a, b) => b.vote_average - a.vote_average);
 
   return {
-    mostWatched,
-    lastWeekend,
-    trending,
+    mostWatched: trendingMovies.results ?? [],
+    lastWeekend: nowPlayingMovies.results ?? [],
+    trending: trendingMovies.results ?? [],
     popular: {
       movies: sortByVote(
         (popularMovies.results as Array<{ vote_average: number }>) ?? [],
@@ -311,28 +243,32 @@ export async function fetchReleaseDetails(
   const cached = getCached(cacheKey);
   if (cached) return cached;
 
-  if (!env.TRAKT_CLIENT_ID) {
-    return { tmdb_id: Number(id), title: "", type: "movie" };
+  type TmdbTitle = { title?: string; name?: string; release_date?: string; first_air_date?: string };
+  let hit: TmdbTitle | null = null;
+  let mediaType: "movie" | "tv" = "movie";
+
+  try {
+    hit = await tmdbGet<TmdbTitle>(`/movie/${id}`);
+    mediaType = "movie";
+  } catch {
+    try {
+      hit = await tmdbGet<TmdbTitle>(`/tv/${id}`);
+      mediaType = "tv";
+    } catch {
+      hit = null;
+    }
   }
 
-  const results = await traktGet<
-    Array<{
-      type: string;
-      movie?: { title: string; year?: number; ids: { tmdb?: number } };
-      show?: { title: string; year?: number; ids: { tmdb?: number } };
-      episode?: { season: number; number: number };
-    }>
-  >(`/search/tmdb/${id}?type=movie,show`);
-
-  const hit = results[0];
+  const yearStr =
+    hit?.release_date?.slice(0, 4) ?? hit?.first_air_date?.slice(0, 4);
   const payload = {
     tmdb_id: Number(id),
-    title: hit?.movie?.title ?? hit?.show?.title ?? "",
-    year: hit?.movie?.year ?? hit?.show?.year,
+    title: hit?.title ?? hit?.name ?? "",
+    year: yearStr ? Number(yearStr) : undefined,
     type:
       season !== undefined && episode !== undefined
         ? "episode"
-        : hit?.type === "show"
+        : mediaType === "tv"
           ? "episode"
           : "movie",
     season: season !== undefined ? season : undefined,

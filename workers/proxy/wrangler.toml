@@ -2,6 +2,10 @@ name = "topwaatch-proxy"
 main = "src/index.ts"
 compatibility_date = "2025-01-01"
 
+[observability.logs]
+enabled = true
+invocation_logs = true
+
 [vars]
 ALLOWED_ORIGIN = "*"
 # Success sample rates (errors always logged). Host appears in logs only.
