@@ -125,24 +125,27 @@ function rewritePlaylist(
             directSegments,
           ),
         );
+      } else if (line.startsWith("#EXT-X-BITRATE:")) {
+        // Febbox/shegu inserts this between #EXTINF and the segment URL — drop it
+        // so HLS.js associates each URL with the preceding #EXTINF.
+        continue;
       } else {
         newLines.push(line);
       }
     } else if (line.trim()) {
       const resolved = parseURL(line, sourceUrl);
       if (resolved) {
-        if (directSegments && !isMaster) {
+        const isNestedPlaylist = /\.m3u8(\?|#|$)/i.test(resolved);
+        const proxyPath: "m3u8-proxy" | "ts-proxy" =
+          isMaster || isNestedPlaylist ? "m3u8-proxy" : "ts-proxy";
+
+        if (directSegments && !isMaster && !isNestedPlaylist) {
           // IP-locked CDNs (e.g. vix-content.net): browser fetches segments
           // directly; Cloudflare/ts-proxy gets 403.
           newLines.push(resolved);
         } else {
           newLines.push(
-            proxyUrl(
-              baseProxyUrl,
-              isMaster ? "m3u8-proxy" : "ts-proxy",
-              resolved,
-              headers,
-            ),
+            proxyUrl(baseProxyUrl, proxyPath, resolved, headers),
           );
         }
       } else {

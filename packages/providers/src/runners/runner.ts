@@ -139,28 +139,31 @@ export async function runAllProviders(list: ProviderList, ops: ProviderRunnerOpt
     if (!output) throw new Error('Invalid media type');
 
     // return stream if there are any
-    if (output.stream?.[0]) {
-      try {
-        const playableStream = await validatePlayableStream(output.stream[0], ops, source.id);
-        if (!playableStream) throw new NotFoundError('No streams found');
-        if (ops.skipHevcFileStreams && isHevcOnlyFileStream(playableStream)) {
-          throw new NotFoundError('HEVC-only stream skipped (browser cannot decode H.265)');
-        }
+    if (output.stream?.length) {
+      for (const candidate of output.stream) {
+        try {
+          const playableStream = await validatePlayableStream(candidate, ops, source.id);
+          if (!playableStream) continue;
+          if (ops.skipHevcFileStreams && isHevcOnlyFileStream(playableStream)) {
+            continue;
+          }
 
-        return {
-          sourceId: source.id,
-          stream: playableStream,
-        };
-      } catch (error) {
-        const updateParams: UpdateEvent = {
-          id: source.id,
-          percentage: 100,
-          status: error instanceof NotFoundError ? 'notfound' : 'failure',
-          reason: error instanceof NotFoundError ? error.message : 'Stream validation failed',
-          error: error instanceof NotFoundError ? undefined : error,
-        };
-        ops.events?.update?.(updateParams);
+          return {
+            sourceId: source.id,
+            stream: playableStream,
+          };
+        } catch {
+          continue;
+        }
       }
+
+      const updateParams: UpdateEvent = {
+        id: source.id,
+        percentage: 100,
+        status: 'notfound',
+        reason: 'No playable stream found',
+      };
+      ops.events?.update?.(updateParams);
     }
 
     // filter disabled and run embed scrapers on listed embeds

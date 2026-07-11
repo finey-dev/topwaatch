@@ -6,6 +6,7 @@ import {
   makeProviders,
   makeSimpleProxyFetcher,
   makeStandardFetcher,
+  playlistNeedsDirectSegments,
   setFebboxScrapeContext,
   clearFebboxScrapeContext,
   setM3U8ProxyUrl,
@@ -213,7 +214,9 @@ function rewriteStream(
   }
 
   if (stream.type === "hls") {
-    const directSegments = stream.flags?.includes(flags.IP_LOCKED) ?? false;
+    const directSegments =
+      (stream.flags?.includes(flags.IP_LOCKED) ?? false) ||
+      playlistNeedsDirectSegments(stream.playlist);
     return {
       ...stream,
       // Always m3u8-proxy for playlists (rewrites segment URLs). Heuristic

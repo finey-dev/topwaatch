@@ -115,9 +115,14 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
   const userToken = getFebboxUserToken();
   if (!userToken) throw new NotFoundError('Requires a Febbox account  connect one in Settings');
 
-  ctx.progress(40);
-
   const base = getFebboxBackendUrl();
+  if (!base) {
+    throw new NotFoundError(
+      'Backend URL is not configured — set VITE_BACKEND_URL for TopWaatch Nova',
+    );
+  }
+
+  ctx.progress(40);
   let apiUrl = `${base}/febbox/fedapi?name=${encodeURIComponent(ctx.media.title)}&year=${ctx.media.releaseYear}&ui=${encodeURIComponent(userToken)}`;
   if (ctx.media.type === 'show') {
     apiUrl += `&season=${ctx.media.season.number}&episode=${ctx.media.episode.number}`;

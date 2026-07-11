@@ -1,4 +1,5 @@
 import { getLoadbalancedM3U8ProxyUrl } from "@/backend/providers/fetchers";
+import { playlistNeedsDirectSegments } from "@topwaatch/providers";
 import { getM3U8ProxyUrls, getProxyUrls } from "@/utils/proxyUrls";
 
 function mergeStreamHeaders(
@@ -33,15 +34,38 @@ function withHeadersQuery(url: string, headers: Record<string, string>): string 
 }
 
 /**
+ * Febbox/shegu fMP4 and vixsrc TS are large and CDN-signed with CORS *.
+ * Proxying every .m4s through ts-proxy exceeds Worker CPU; fetch direct in browser.
+ */
+function withDirectSegmentsQuery(url: string, directSegments: boolean): string {
+  if (!directSegments || url.includes("directSegments=")) return url;
+  try {
+    const parsed = new URL(url);
+    parsed.searchParams.set("directSegments", "1");
+    return parsed.toString();
+  } catch {
+    const sep = url.includes("?") ? "&" : "?";
+    return `${url}${sep}directSegments=1`;
+  }
+}
+
+/**
  * Creates a proxied M3U8 URL for HLS streams using a random proxy from config
  */
 export function createM3U8ProxyUrl(
   url: string,
   headers: Record<string, string> = {},
+  opts?: { directSegments?: boolean },
 ): string {
+  const directSegments =
+    opts?.directSegments ?? playlistNeedsDirectSegments(url);
+
   // Never nest proxies  m3u8-proxy rejects loopback destinations (SSRF).
   if (url.includes("/m3u8-proxy?")) {
-    return withHeadersQuery(url, headers);
+    return withDirectSegmentsQuery(
+      withHeadersQuery(url, headers),
+      directSegments,
+    );
   }
   if (url.includes("destination=")) {
     const real = unwrapProxyDestination(url);
@@ -53,7 +77,7 @@ export function createM3U8ProxyUrl(
       } catch {
         // ignore
       }
-      return createM3U8ProxyUrl(real, { ...baked, ...headers });
+      return createM3U8ProxyUrl(real, { ...baked, ...headers }, opts);
     }
   }
 
@@ -66,9 +90,10 @@ export function createM3U8ProxyUrl(
 
   const encodedUrl = encodeURIComponent(url);
   const encodedHeaders = encodeURIComponent(JSON.stringify(headers));
+  const directQuery = directSegments ? "&directSegments=1" : "";
   return `${proxyBaseUrl}/m3u8-proxy?url=${encodedUrl}${
     Object.keys(headers).length > 0 ? `&headers=${encodedHeaders}` : ""
-  }`;
+  }${directQuery}`;
 }
 
 /**

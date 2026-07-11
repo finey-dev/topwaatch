@@ -59,8 +59,14 @@ export function getFebboxBackendUrl(): string {
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         return 'http://localhost:3000';
       }
+      // Vite build-time env is exposed on window by apps/web (see providers.ts).
+      const runtimeUrl = (window as { __TW_BACKEND_URL__?: string }).__TW_BACKEND_URL__;
+      if (typeof runtimeUrl === 'string' && runtimeUrl.length > 0) {
+        return runtimeUrl.replace(/\/$/, '');
+      }
       // Fall back to the runtime config injected via public/config.js
-      const configUrl = (window as any).__CONFIG__?.VITE_BACKEND_URL;
+      const configUrl = (window as { __CONFIG__?: { VITE_BACKEND_URL?: string | null } }).__CONFIG__
+        ?.VITE_BACKEND_URL;
       if (typeof configUrl === 'string' && configUrl.length > 0) {
         return configUrl.replace(/\/$/, '');
       }
@@ -102,6 +108,23 @@ export function febboxPlaybackHeaders(ui: string): Record<string, string> {
     Referer: 'https://www.febbox.com/',
     Origin: 'https://www.febbox.com',
   };
+}
+
+/**
+ * Febbox/shegu HLS uses large fMP4 (.m4s) segments with CDN CORS *.
+ * Proxying each segment through ts-proxy exceeds Worker CPU — browser loads direct.
+ */
+export function playlistNeedsDirectSegments(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    return (
+      host.endsWith('.shegu.net') ||
+      host.includes('vix-content.net') ||
+      host.endsWith('febbox.com')
+    );
+  } catch {
+    return /shegu\.net|vix-content\.net|febbox\.com/i.test(url);
+  }
 }
 
 type Parsed = { url: string; type: 'hls' | 'mp4' };
@@ -163,7 +186,7 @@ export function buildFebboxStreamResults(opts: {
         playlist: hls.url,
         type: 'hls',
         headers: opts.headers,
-        flags: [flags.CORS_ALLOWED],
+        flags: [flags.CORS_ALLOWED, flags.IP_LOCKED],
       }
     : null;
 

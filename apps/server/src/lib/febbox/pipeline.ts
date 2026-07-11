@@ -196,10 +196,19 @@ async function resolveMediaStreamsUncached(
     const links = await getQualityLinks(shareKey, primary.fid, ui);
     for (const link of links) {
       const key = qualityLabelToKey(link.quality);
-      if (!key || key === "ORG") continue;
       if (!link.url) continue;
       const isHls =
         /\.m3u8(\?|#|$)/i.test(link.url) || /\/hls\//i.test(link.url);
+
+      // ORG is usually the direct file (mkv/mp4). Keep for Nova file fallback.
+      if (key === "ORG") {
+        if (!isHls) {
+          streams.ORG = { type: "mp4", url: link.url };
+        }
+        continue;
+      }
+
+      if (!key) continue;
       streams[key] = { type: isHls ? "hls" : "mp4", url: link.url };
     }
   } catch (err) {

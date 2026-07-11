@@ -26,4 +26,5 @@ export {
   clearFebboxScrapeContext,
   getFebboxUserToken,
   getFebboxBackendUrl,
+  playlistNeedsDirectSegments,
 } from '@/providers/sources/twFebboxShared';

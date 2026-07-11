@@ -162,6 +162,11 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
 
   const region = getRegion();
   const base = getFebboxBackendUrl();
+  if (!base) {
+    throw new NotFoundError(
+      'Backend URL is not configured — set VITE_BACKEND_URL for TopWaatch Orbit',
+    );
+  }
   ctx.progress(50);
 
   const apiUrl =

@@ -55,10 +55,21 @@ export async function handleTs(
     }
 
     const outHeaders = corsHeaders(corsOrigin);
-    outHeaders.set(
-      "Content-Type",
-      response.headers.get("Content-Type") || "video/mp2t",
-    );
+    const upstreamType = response.headers.get("Content-Type");
+    let contentType = upstreamType || "video/mp2t";
+    if (!upstreamType) {
+      try {
+        const path = new URL(targetUrl).pathname.toLowerCase();
+        if (path.endsWith(".mp4") || path.includes("init.mp4")) {
+          contentType = "video/mp4";
+        } else if (path.endsWith(".m4s")) {
+          contentType = "video/iso.segment";
+        }
+      } catch {
+        // keep default
+      }
+    }
+    outHeaders.set("Content-Type", contentType);
     outHeaders.set("Cache-Control", "public, max-age=3600");
 
     let bodyOut: ReadableStream | null = response.body;
