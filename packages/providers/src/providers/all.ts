@@ -103,6 +103,7 @@ import { watchanimeworldScraper } from './sources/watchanimeworld';
 import { wecimaScraper } from './sources/wecima';
 import { zunimeScraper } from './sources/zunime';
 import { peachifyScraper } from './sources/peachify';
+import { vidcoreScraper } from './sources/vidcore';
 
 export function gatherAllSources(): Array<Sourcerer> {
   // all sources are gathered here
@@ -153,6 +154,7 @@ export function gatherAllSources(): Array<Sourcerer> {
     vidrockScraper,
     watchanimeworldScraper,
     peachifyScraper,
+    vidcoreScraper,
   ];
 }
 
