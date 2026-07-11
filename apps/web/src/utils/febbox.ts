@@ -5,49 +5,32 @@ export const FEBBOX_OAUTH_RETURN_KEY = "febbox_oauth_return";
 export const FEBBOX_OAUTH_MESSAGE = "topwaatch:febbox-auth";
 
 /**
- * Resolve the Febbox OAuth callback URL.
- * Febbox only accepts HTTPS redirect URIs (not http://localhost).
- * When the app runs on a production HTTPS origin, use that origin so the
- * callback matches where the user actually started (e.g. topwaatch.mov vs vercel.app).
+ * Use the configured Febbox redirect URI exactly as registered at
+ * https://www.febbox.com/open/client — do not derive it from window.location,
+ * or preview/staging origins will fail Febbox validation.
  */
 export function resolveFebboxRedirectUri(
   configured: string | null,
 ): string | null {
-  if (!configured) return null;
-
-  const origin = window.location.origin;
-  const isLocal =
-    origin.startsWith("http://localhost") ||
-    origin.startsWith("http://127.0.0.1");
-
-  if (isLocal) return configured;
-  if (origin.startsWith("https://")) return `${origin}/febbox`;
   return configured;
 }
 
 /**
- * Febbox web-authorize login URL.
+ * Febbox web-authorize entry URL.
  * Docs: https://www.febbox.com/open/client
  *
- * Febbox's own /open/client_auth page starts Google login with `jump` pointing
- * at /open/client_auth?client_id=…&redirect_uri=… (client_id is NOT a separate
- * login/google param). Passing client_id directly on login/google causes Febbox
- * to route through client_auth after Google sign-in with a broken session and
- * show "Client ID not found!" in a loop.
- *
- * After Google login, Febbox hits client_auth while authenticated, then redirects
- * to redirect_uri with `auth_token` (docs also show `auto_token`).
+ * Start at /open/client_auth and let Febbox build the Google login link.
+ * Constructing /login/google ourselves is fragile: putting client_id on that
+ * URL lands on client_auth with "Client ID not found", and nesting client_auth
+ * inside jump with an encoded redirect_uri triggers "redirect URI is not allowed"
+ * on the Google callback. Febbox's own login page uses the correct shape.
  */
 export function getFebboxLoginUrl(clientId: string, redirectUri: string): string {
-  const clientAuthJump = `/open/client_auth?${new URLSearchParams({
+  const params = new URLSearchParams({
     client_id: clientId,
     redirect_uri: redirectUri,
-  }).toString()}`;
-
-  const params = new URLSearchParams({
-    jump: clientAuthJump,
   });
-  return `https://www.febbox.com/login/google?${params.toString()}`;
+  return `https://www.febbox.com/open/client_auth?${params.toString()}`;
 }
 
 /** Read token from Febbox callback query (docs use both names). */
