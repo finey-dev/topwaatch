@@ -79,7 +79,8 @@
     "@trpc/client": "catalog:",
     "@trpc/tanstack-react-query": "^11.18.0",
     "@tanstack/react-query": "^5",
-    "@topwaatch/api": "workspace:*"
+    "@topwaatch/api": "workspace:*",
+    "@vercel/analytics": "^1.5.0"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",

@@ -42,9 +42,11 @@ function proxyUrl(
   path: "m3u8-proxy" | "ts-proxy",
   target: string,
   headers: Record<string, string>,
+  directSegments: boolean,
 ): string {
   const encodedHeaders = encodeURIComponent(JSON.stringify(headers));
-  return `${baseProxyUrl}/${path}?url=${encodeURIComponent(target)}&headers=${encodedHeaders}`;
+  const directQuery = directSegments ? "&directSegments=1" : "";
+  return `${baseProxyUrl}/${path}?url=${encodeURIComponent(target)}&headers=${encodedHeaders}${directQuery}`;
 }
 
 /**
@@ -77,7 +79,13 @@ function rewriteUriAttribute(
         if (d2 !== undefined) return `URI='${resolved}'`;
         return `URI=${resolved}`;
       }
-      const proxied = proxyUrl(baseProxyUrl, proxyPath, resolved, headers);
+      const proxied = proxyUrl(
+        baseProxyUrl,
+        proxyPath,
+        resolved,
+        headers,
+        directSegments,
+      );
       if (d1 !== undefined) return `URI="${proxied}"`;
       if (d2 !== undefined) return `URI='${proxied}'`;
       return `URI=${proxied}`;
@@ -145,7 +153,13 @@ function rewritePlaylist(
           newLines.push(resolved);
         } else {
           newLines.push(
-            proxyUrl(baseProxyUrl, proxyPath, resolved, headers),
+            proxyUrl(
+              baseProxyUrl,
+              proxyPath,
+              resolved,
+              headers,
+              directSegments,
+            ),
           );
         }
       } else {
