@@ -25,7 +25,7 @@ import { usePreferencesStore } from "@/stores/preferences";
 import { MediaItem } from "@/utils/mediaTypes";
 
 import { Button } from "./About";
-import { DiscordNotice } from "./parts/home/DiscordNotice";
+import { FebboxRecommendationModal } from "./parts/home/FebboxRecommendationModal";
 // Re-enable when a TopWaatch rebrand/announcement banner is needed again.
 // import { RevivalAnnouncementModal } from "./parts/home/RevivalAnnouncementModal";
 
@@ -165,7 +165,7 @@ export function HomePage() {
 
   return (
     <HomeLayout showBg={showBg}>
-      {!search && <DiscordNotice />}
+      {!search && <FebboxRecommendationModal />}
       <div className="mb-0">
         <Helmet>
           <style type="text/css">{`

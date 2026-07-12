@@ -107,11 +107,13 @@ export function LoginFormPart() {
           ) : error ? (
             <p className="text-type-danger text-sm">{error}</p>
           ) : null}
+          {/* Re-enable when domain + transactional email are configured for password reset.
           <p className="text-right">
             <MwLink onClick={() => !loading && setView("reset")}>
               {t("auth.loginForm.forgotPassword")}
             </MwLink>
           </p>
+          */}
         </div>
         <LargeCardButtons>
           <Button theme="purple" type="submit" loading={loading}>

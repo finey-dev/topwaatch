@@ -36,7 +36,7 @@ import { useAuthStore } from "@/stores/auth";
 import { usePreferencesStore } from "@/stores/preferences";
 import { useSimklStore } from "@/stores/simkl/store";
 import { useTraktStore } from "@/stores/trakt/store";
-import { resolveFebboxRedirectUri, startFebboxOAuth } from "@/utils/febbox";
+import { resolveFebboxRedirectUri, startFebboxOAuth, FEBBOX_OAUTH_ENABLED } from "@/utils/febbox";
 import { simklService } from "@/utils/simkl";
 
 interface ProxyEditProps {
@@ -201,7 +201,7 @@ export function FebboxSetup({
   setFebboxKey,
   mode,
 }: FebboxSetupProps) {
-  const [showManual, setShowManual] = useState(false);
+  const [showManual, setShowManual] = useState(!FEBBOX_OAUTH_ENABLED);
   const [showVideo, setShowVideo] = useState(false);
   const user = useAuthStore();
   const preferences = usePreferencesStore();
@@ -210,9 +210,10 @@ export function FebboxSetup({
   const febboxRedirectUri = resolveFebboxRedirectUri(
     config.FEBBOX_REDIRECT_URI,
   );
-  const canOAuth = Boolean(
+  const hasOAuthConfig = Boolean(
     config.FEBBOX_CLIENT_ID && febboxRedirectUri,
   );
+  const showOAuthSection = hasOAuthConfig || !FEBBOX_OAUTH_ENABLED;
 
   // Initialize expansion state for onboarding mode
   const [isFebboxExpanded, setIsFebboxExpanded] = useState(
@@ -272,7 +273,8 @@ export function FebboxSetup({
   };
 
   const connectWithGoogle = () => {
-    if (!config.FEBBOX_CLIENT_ID || !febboxRedirectUri) return;
+    if (!FEBBOX_OAUTH_ENABLED || !config.FEBBOX_CLIENT_ID || !febboxRedirectUri)
+      return;
     startFebboxOAuth(config.FEBBOX_CLIENT_ID, febboxRedirectUri);
   };
 
@@ -333,7 +335,7 @@ export function FebboxSetup({
           <>
             <Divider marginClass="my-6 px-8 box-content -mx-8" />
 
-            {canOAuth ? (
+            {showOAuthSection ? (
               <div className="my-3 flex flex-col gap-4 max-w-[32rem]">
                 {hasToken ? (
                   <>
@@ -364,7 +366,11 @@ export function FebboxSetup({
                         </div>
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <Button theme="secondary" onClick={connectWithGoogle}>
+                        <Button
+                          theme="secondary"
+                          onClick={connectWithGoogle}
+                          disabled={!FEBBOX_OAUTH_ENABLED || !hasOAuthConfig}
+                        >
                           Connect new
                         </Button>
                         <Button theme="danger" onClick={disconnect}>
@@ -393,29 +399,44 @@ export function FebboxSetup({
                   </>
                 ) : (
                   <>
-                    <Button theme="purple" onClick={connectWithGoogle}>
+                    <Button
+                      theme="purple"
+                      onClick={connectWithGoogle}
+                      disabled={!FEBBOX_OAUTH_ENABLED || !hasOAuthConfig}
+                    >
                       Continue with Google
                     </Button>
-                    <p className="text-sm text-type-secondary">
-                      Sign in with Google to link your Febbox account to
-                      TopWaatch Cinema (Nova & Orbit).
-                    </p>
-                    <p className="text-xs text-type-secondary opacity-70">
-                      Make sure you created your client at{" "}
-                      <MwLink url="https://www.febbox.com/open/client">
-                        febbox.com/open/client
-                      </MwLink>{" "}
-                      (the <span className="text-white">web-authorize</span>{" "}
-                      page) — not the API developer page. Set the redirect URI
-                      to exactly{" "}
-                      <span className="text-white break-all">
-                        {febboxRedirectUri}
-                      </span>
-                      . If Febbox shows{" "}
-                      <span className="text-white">client not found</span>,
-                      your client_id is from the wrong page — create a new one
-                      at the link above.
-                    </p>
+                    {!FEBBOX_OAUTH_ENABLED ? (
+                      <p className="text-sm text-type-secondary border-l-2 border-yellow-500/60 pl-3">
+                        Google sign-in is temporarily unavailable — Febbox&apos;s
+                        connect flow is still unstable on their side. Fixes are
+                        planned for a future release. For now, use the manual
+                        setup below to link your account.
+                      </p>
+                    ) : (
+                      <p className="text-sm text-type-secondary">
+                        Sign in with Google to link your Febbox account to
+                        TopWaatch Cinema (Nova & Orbit).
+                      </p>
+                    )}
+                    {FEBBOX_OAUTH_ENABLED ? (
+                      <p className="text-xs text-type-secondary opacity-70">
+                        Make sure you created your client at{" "}
+                        <MwLink url="https://www.febbox.com/open/client">
+                          febbox.com/open/client
+                        </MwLink>{" "}
+                        (the <span className="text-white">web-authorize</span>{" "}
+                        page) — not the API developer page. Set the redirect URI
+                        to exactly{" "}
+                        <span className="text-white break-all">
+                          {febboxRedirectUri}
+                        </span>
+                        . If Febbox shows{" "}
+                        <span className="text-white">client not found</span>,
+                        your client_id is from the wrong page — create a new one
+                        at the link above.
+                      </p>
+                    ) : null}
                   </>
                 )}
 
@@ -517,7 +538,7 @@ export function FebboxSetup({
               </p>
             )}
 
-            {!canOAuth && (
+            {!showOAuthSection && (
               <>
                 <div className="my-3 max-w-[30rem] font-medium">
                   <button
