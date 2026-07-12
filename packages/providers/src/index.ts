@@ -27,4 +27,6 @@ export {
   getFebboxUserToken,
   getFebboxBackendUrl,
   playlistNeedsDirectSegments,
+  isBrowserPlayableDirectFile,
+  isOrgDirectFileUrl,
 } from '@/providers/sources/twFebboxShared';

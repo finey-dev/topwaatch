@@ -81,6 +81,28 @@ export function isHlsUrl(url: string): boolean {
   return /\.m3u8(\?|#|$)/i.test(url) || /\/hls\//i.test(url);
 }
 
+export function isMkvUrl(url: string): boolean {
+  const path = url.split('?')[0]?.toLowerCase() ?? '';
+  return path.endsWith('.mkv');
+}
+
+/**
+ * Direct file URLs browsers can play with working audio.
+ * MKV remuxes often decode video but not AC3/DTS audio tracks.
+ */
+export function isOrgDirectFileUrl(url: string): boolean {
+  if (isHlsUrl(url) || isMkvUrl(url)) return false;
+  const path = url.split('?')[0]?.toLowerCase() ?? '';
+  return path.endsWith('.mp4') || path.endsWith('.webm');
+}
+
+/** Labeled Febbox/shegu qualities — still probe-reject MKV containers. */
+export function isBrowserPlayableDirectFile(url: string): boolean {
+  if (isHlsUrl(url) || isMkvUrl(url)) return false;
+  if (isOrgDirectFileUrl(url)) return true;
+  return /shegu\.net/i.test(url) || /febbox\.com/i.test(url);
+}
+
 export function isLikelyMp4Url(url: string): boolean {
   if (isHlsUrl(url)) return false;
   const path = url.split('?')[0]?.toLowerCase() ?? '';
@@ -138,27 +160,26 @@ export function pickBestHls(streams: Record<string, Parsed>): Parsed | null {
   return Object.values(streams).find((s) => s.type === 'hls') ?? null;
 }
 
+function addMp4Quality(
+  qualities: NonNullable<Extract<Stream, { type: 'file' }>['qualities']>,
+  key: keyof NonNullable<Extract<Stream, { type: 'file' }>['qualities']>,
+  entry?: Parsed,
+) {
+  if (entry?.type !== 'mp4' || !isBrowserPlayableDirectFile(entry.url)) return;
+  qualities[key] = { type: 'mp4', url: entry.url };
+}
+
 export function buildMp4Qualities(
   streams: Record<string, Parsed>,
 ): NonNullable<Extract<Stream, { type: 'file' }>['qualities']> {
   const qualities: NonNullable<Extract<Stream, { type: 'file' }>['qualities']> =
     {};
-  if (streams[2160]?.type === 'mp4') {
-    qualities['4k'] = { type: 'mp4', url: streams[2160].url };
-  }
-  if (streams[1080]?.type === 'mp4') {
-    qualities[1080] = { type: 'mp4', url: streams[1080].url };
-  }
-  if (streams[720]?.type === 'mp4') {
-    qualities[720] = { type: 'mp4', url: streams[720].url };
-  }
-  if (streams[480]?.type === 'mp4') {
-    qualities[480] = { type: 'mp4', url: streams[480].url };
-  }
-  if (streams[360]?.type === 'mp4') {
-    qualities[360] = { type: 'mp4', url: streams[360].url };
-  }
-  if (streams.unknown?.type === 'mp4') {
+  addMp4Quality(qualities, '4k', streams[2160]);
+  addMp4Quality(qualities, '1080', streams[1080]);
+  addMp4Quality(qualities, '720', streams[720]);
+  addMp4Quality(qualities, '480', streams[480]);
+  addMp4Quality(qualities, '360', streams[360]);
+  if (streams.unknown?.type === 'mp4' && isOrgDirectFileUrl(streams.unknown.url)) {
     qualities.unknown = { type: 'mp4', url: streams.unknown.url };
   }
   return qualities;
@@ -203,8 +224,12 @@ export function buildFebboxStreamResults(opts: {
       }
     : null;
 
+  const hasLabeledMp4 = Object.keys(qualities).some((key) => key !== 'unknown');
+  // No labeled MP4 qualities (only MKV remux was dropped) — use transcoded HLS.
+  const effectivePrefer = hlsStream && !hasLabeledMp4 ? 'hls' : opts.prefer;
+
   const out: Stream[] = [];
-  if (opts.prefer === 'mp4') {
+  if (effectivePrefer === 'mp4') {
     if (fileStream) out.push(fileStream);
     if (hlsStream) out.push(hlsStream);
   } else {

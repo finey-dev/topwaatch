@@ -94,6 +94,32 @@ function toVariant(file: FebboxFile): FileVariant {
   };
 }
 
+function streamEntryIsHls(entry: StreamEntry | string): boolean {
+  const url = typeof entry === 'string' ? entry : entry.url;
+  const type = typeof entry === 'string' ? undefined : entry.type;
+  return type === 'hls' || /\.m3u8(\?|#|$)/i.test(url) || /\/hls\//i.test(url);
+}
+
+function streamsHaveHls(streams: Record<string, StreamEntry | string>): boolean {
+  return Object.values(streams).some(streamEntryIsHls);
+}
+
+async function appendHlsFallback(
+  streams: Record<string, StreamEntry | string>,
+  ossFid: number | string,
+  ui: string,
+  shareKey: string,
+): Promise<void> {
+  if (streamsHaveHls(streams)) return;
+  const hlsOk = await isHlsPlayable(ossFid, ui, shareKey);
+  if (hlsOk) {
+    streams.HLS = {
+      type: "hls",
+      url: hlsUrlForOssFid(ossFid),
+    };
+  }
+}
+
 function qualityLabelToKey(quality: string): string | null {
   const q = quality.replace(/\s+/g, "").toUpperCase();
   if (q === "ORG" || q === "ORIGINAL") return "ORG";
@@ -228,6 +254,10 @@ async function resolveMediaStreamsUncached(
         url: hlsUrlForOssFid(primary.oss_fid),
       };
     }
+  } else {
+    // Nova path: quality links often return MKV remuxes (video only in browser).
+    // Always offer Febbox's transcoded HLS as a fallback when none is present.
+    await appendHlsFallback(streams, primary.oss_fid, ui, shareKey);
   }
 
   const showboxId = String(entry.id);
@@ -292,12 +322,12 @@ export async function resolveVariantStreams(
     streams[key] = { type: isHls ? "hls" : "mp4", url: link.url };
   }
 
-  // Also try to find oss_fid from file list for HLS
+  // Also try to find oss_fid from file list for HLS fallback
   try {
     const files = await getStreamsForMedia(shareKey, ui, "movie");
     const match = files.find((f) => String(f.fid) === String(fid));
-    if (match?.oss_fid && (await isHlsPlayable(match.oss_fid, ui, shareKey))) {
-      streams.ORG = { type: "hls", url: hlsUrlForOssFid(match.oss_fid) };
+    if (match?.oss_fid) {
+      await appendHlsFallback(streams, match.oss_fid, ui, shareKey);
     }
   } catch {
     // ignore

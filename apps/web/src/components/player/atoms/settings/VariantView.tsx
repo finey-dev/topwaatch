@@ -1,5 +1,7 @@
 import { useCallback, useState } from "react";
 
+import { isOrgDirectFileUrl } from "@topwaatch/providers";
+
 import {
   ArtemisFileVariant,
   FileVariant,
@@ -151,7 +153,9 @@ export function VariantView({ id }: { id: string }) {
             } else if (quality === "4K") {
               parsed["2160"] = { url: entry.url, type: entry.type };
             } else if (quality === "ORG") {
-              parsed.unknown = { url: entry.url, type: entry.type };
+              if (entry.type === "hls" || isOrgDirectFileUrl(entry.url)) {
+                parsed.unknown = { url: entry.url, type: entry.type };
+              }
             } else {
               const num = parseInt(quality.replace("P", ""), 10);
               if (!Number.isNaN(num))

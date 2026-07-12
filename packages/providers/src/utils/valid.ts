@@ -94,6 +94,19 @@ function bodyToBytes(body: unknown): Uint8Array | null {
 }
 
 /**
+ * Reject MKV containers — browsers often play video but not AC3/DTS audio.
+ */
+export function isMkvHeader(bytes: Uint8Array): boolean {
+  return (
+    bytes.length >= 4 &&
+    bytes[0] === 0x1a &&
+    bytes[1] === 0x45 &&
+    bytes[2] === 0xdf &&
+    bytes[3] === 0xa3
+  );
+}
+
+/**
  * Reject MP4s that HTML5 <video> cannot play: containers whose first mdat
  * extends to EOF with no moov beforehand (common doodstream hotlink decoy).
  * Fast-start (moov first) and moov-at-end (finite mdat size) both pass.
@@ -278,6 +291,10 @@ export async function validatePlayableStream(
         return;
       }
       const bytes = bodyToBytes(result.body);
+      if (bytes && isMkvHeader(bytes)) {
+        delete validQualities[qualityKey as keyof typeof stream.qualities];
+        return;
+      }
       if (bytes && !isHtml5PlayableMp4Header(bytes)) {
         delete validQualities[qualityKey as keyof typeof stream.qualities];
       }

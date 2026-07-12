@@ -9,6 +9,8 @@ import {
   febboxPlaybackHeaders,
   getFebboxBackendUrl,
   getFebboxUserToken,
+  isBrowserPlayableDirectFile,
+  isOrgDirectFileUrl,
   streamMediaType,
 } from './twFebboxShared';
 
@@ -75,7 +77,9 @@ function parseStreams(data: StreamData) {
 
     let qualityKey: number | 'unknown';
     if (quality === 'ORG') {
-      acc.unknown = { url, type };
+      if (type === 'hls' || isOrgDirectFileUrl(url)) {
+        acc.unknown = { url, type };
+      }
       return acc;
     }
     if (quality === '4K') {
