@@ -1,8 +1,4 @@
-/**
- * Google OAuth connect is disabled until Febbox stabilizes their web-authorize flow.
- * Users should use manual token setup in Settings instead.
- */
-export const FEBBOX_OAUTH_ENABLED = false;
+export const FEBBOX_OAUTH_ENABLED = true;
 
 /** Session key for where to send the user after Febbox Google login. */
 export const FEBBOX_OAUTH_RETURN_KEY = "febbox_oauth_return";

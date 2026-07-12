@@ -369,7 +369,7 @@ export function FebboxSetup({
                         <Button
                           theme="secondary"
                           onClick={connectWithGoogle}
-                          disabled={!FEBBOX_OAUTH_ENABLED || !hasOAuthConfig}
+                          disabled={!hasOAuthConfig}
                         >
                           Connect new
                         </Button>
@@ -402,24 +402,20 @@ export function FebboxSetup({
                     <Button
                       theme="purple"
                       onClick={connectWithGoogle}
-                      disabled={!FEBBOX_OAUTH_ENABLED || !hasOAuthConfig}
+                      disabled={!hasOAuthConfig}
                     >
                       Continue with Google
                     </Button>
-                    {!FEBBOX_OAUTH_ENABLED ? (
-                      <p className="text-sm text-type-secondary border-l-2 border-yellow-500/60 pl-3">
-                        Google sign-in is temporarily unavailable — Febbox&apos;s
-                        connect flow is still unstable on their side. Fixes are
-                        planned for a future release. For now, use the manual
-                        setup below to link your account.
-                      </p>
-                    ) : (
-                      <p className="text-sm text-type-secondary">
-                        Sign in with Google to link your Febbox account to
-                        TopWaatch Cinema (Nova & Orbit).
-                      </p>
-                    )}
-                    {FEBBOX_OAUTH_ENABLED ? (
+                    <p className="text-sm text-type-secondary">
+                      Sign in with Google to link your Febbox account to
+                      TopWaatch Cinema (Nova &amp; Orbit).
+                    </p>
+                    <p className="text-sm text-type-secondary border-l-2 border-yellow-500/60 pl-3">
+                      Note: Febbox&apos;s connect flow can be unstable. If
+                      Google sign-in fails, use the manual setup below to paste
+                      your token directly.
+                    </p>
+                    {hasOAuthConfig ? (
                       <p className="text-xs text-type-secondary opacity-70">
                         Make sure you created your client at{" "}
                         <MwLink url="https://www.febbox.com/open/client">
