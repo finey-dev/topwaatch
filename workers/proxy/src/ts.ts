@@ -29,8 +29,9 @@ export async function handleTs(
     );
   }
 
+  let parsedTarget: URL;
   try {
-    assertPublicDestination(targetUrl);
+    parsedTarget = assertPublicDestination(targetUrl);
   } catch (err) {
     return new Response(
       err instanceof Error ? err.message : "Invalid destination",
@@ -58,28 +59,19 @@ export async function handleTs(
     const upstreamType = response.headers.get("Content-Type");
     let contentType = upstreamType || "video/mp2t";
     if (!upstreamType) {
-      try {
-        const path = new URL(targetUrl).pathname.toLowerCase();
-        if (path.endsWith(".mp4") || path.includes("init.mp4")) {
-          contentType = "video/mp4";
-        } else if (path.endsWith(".m4s")) {
-          contentType = "video/iso.segment";
-        }
-      } catch {
-        // keep default
+      const path = parsedTarget.pathname.toLowerCase();
+      if (path.endsWith(".mp4") || path.includes("init.mp4")) {
+        contentType = "video/mp4";
+      } else if (path.endsWith(".m4s")) {
+        contentType = "video/iso.segment";
       }
     }
     outHeaders.set("Content-Type", contentType);
     outHeaders.set("Cache-Control", "public, max-age=3600");
 
-    let bodyOut: ReadableStream | null = response.body;
-    if (bodyOut) {
-      const { readable, writable } = new TransformStream();
-      bodyOut.pipeTo(writable).catch(() => {});
-      bodyOut = readable;
-    }
-
-    return new Response(bodyOut, {
+    // Pass response.body directly — avoids routing every chunk through the
+    // JS heap via TransformStream, which burns CPU budget on the free plan.
+    return new Response(response.body, {
       status: 200,
       headers: outHeaders,
     });
