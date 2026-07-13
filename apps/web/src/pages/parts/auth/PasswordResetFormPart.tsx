@@ -66,7 +66,7 @@ export function PasswordResetFormPart({ onBack }: PasswordResetFormPartProps) {
 
   return (
     <>
-      <PageTitle subpage k="global.pages.passwordReset" />
+      <PageTitle subpage k="global.pages.passwordReset" noIndex />
       <LargeCard top={<BrandPill backgroundClass="bg-[#161527]" />}>
       <form onSubmit={handleSubmit}>
         <LargeCardText title={t("auth.resetPassword.title")}>

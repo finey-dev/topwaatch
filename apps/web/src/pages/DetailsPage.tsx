@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Helmet } from "react-helmet-async";
+import { LinkPreview } from "@/components/LinkPreview";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -103,13 +103,20 @@ export function DetailsPage() {
 
   return (
     <div className="bg-background-main min-h-screen">
-      <Helmet>
-        <title>
-          {detailsData?.title
+      <LinkPreview
+        title={
+          detailsData?.title
             ? t("global.pages.pagetitle", { title: detailsData.title })
-            : t("global.name")}
-        </title>
-      </Helmet>
+            : t("global.name")
+        }
+        description={detailsData?.overview}
+        image={detailsData?.posterUrl ?? detailsData?.backdrop}
+        imageAlt={
+          detailsData?.title
+            ? `${detailsData.title} on TopWaatch`
+            : undefined
+        }
+      />
       <BlurEllipsis />
       <FooterView>
         <Navigation doBackground noLightbar />

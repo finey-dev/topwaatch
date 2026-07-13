@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 import {
   progressUpdateItemToInput,
@@ -8,8 +8,13 @@ import {
 import { useBackendUrl } from "@/hooks/auth/useBackendUrl";
 import { AccountWithToken, useAuthStore } from "@/stores/auth";
 import { ProgressUpdateItem, useProgressStore } from "@/stores/progress";
+import {
+  coalesceProgressQueue,
+  registerProgressSyncFlush,
+} from "@/stores/progress/syncQueue";
 
-const syncIntervalMs = 20 * 1000; // 20 second intervals
+/** Server sync interval — 2 req/min per active streamer vs ~20/min before. */
+const SYNC_INTERVAL_MS = 30_000;
 
 async function syncProgress(
   items: ProgressUpdateItem[],
@@ -17,11 +22,11 @@ async function syncProgress(
   url: string,
   account: AccountWithToken | null,
 ) {
-  for (const item of items) {
-    // complete it beforehand so it doesn't get handled while in progress
+  const batch = coalesceProgressQueue(items);
+  for (const item of batch) {
     finish(item.id);
 
-    if (!account) continue; // not logged in, dont sync to server
+    if (!account) continue;
 
     try {
       if (item.action === "delete") {
@@ -37,7 +42,6 @@ async function syncProgress(
 
       if (item.action === "upsert") {
         await setProgress(url, account, progressUpdateItemToInput(item));
-        continue;
       }
     } catch (err) {
       console.error(
@@ -53,85 +57,60 @@ export function ProgressSyncer() {
   const removeUpdateItem = useProgressStore((s) => s.removeUpdateItem);
   const url = useBackendUrl();
 
-  // when booting for the first time, clear update queue.
-  // we dont want to process persisted update items
+  const flush = useCallback(async () => {
+    if (!url) return;
+    const state = useProgressStore.getState();
+    if (state.updateQueue.length === 0) return;
+    const user = useAuthStore.getState();
+    await syncProgress(state.updateQueue, removeUpdateItem, url, user.account);
+  }, [removeUpdateItem, url]);
+
   useEffect(() => {
     clearUpdateQueue();
   }, [clearUpdateQueue]);
 
-  // Regular interval sync
+  useEffect(() => {
+    registerProgressSyncFlush(flush);
+  }, [flush]);
+
+  // Periodic sync while the app is open.
   useEffect(() => {
     const interval = setInterval(() => {
-      (async () => {
-        if (!url) return;
-        const state = useProgressStore.getState();
-        const user = useAuthStore.getState();
-        await syncProgress(
-          state.updateQueue,
-          removeUpdateItem,
-          url,
-          user.account,
-        );
-      })();
-    }, syncIntervalMs);
+      void flush();
+    }, SYNC_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [flush]);
 
-    return () => {
-      clearInterval(interval);
-    };
-  }, [removeUpdateItem, url]);
-
-  // Immediate sync when items are added or removed
+  // Flush when the tab goes to background or the page unloads.
   useEffect(() => {
-    let syncTimeout: NodeJS.Timeout | null = null;
+    const onHide = () => {
+      void flush();
+    };
 
-    const syncImmediately = async () => {
-      if (!url) return;
-      const state = useProgressStore.getState();
-      const user = useAuthStore.getState();
-      // Only sync if there are items in the queue
-      if (state.updateQueue.length > 0) {
-        await syncProgress(
-          state.updateQueue,
-          removeUpdateItem,
-          url,
-          user.account,
-        );
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        onHide();
       }
     };
 
-    const debouncedSync = () => {
-      if (syncTimeout) {
-        clearTimeout(syncTimeout);
-      }
-      syncTimeout = setTimeout(syncImmediately, 100);
+    window.addEventListener("pagehide", onHide);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.removeEventListener("pagehide", onHide);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
+  }, [flush]);
 
-    // Override the updateItem function to trigger immediate sync
-    const originalUpdateItem = useProgressStore.getState().updateItem;
-    useProgressStore.setState({
-      updateItem: (...args) => {
-        originalUpdateItem(...args);
-        // Trigger debounced sync after updating item
-        debouncedSync();
-      },
-    });
-
-    // Override removeItem to trigger immediate sync
+  // Deletes should reach the server promptly (user action).
+  useEffect(() => {
     const originalRemoveItem = useProgressStore.getState().removeItem;
     useProgressStore.setState({
       removeItem: (...args) => {
         originalRemoveItem(...args);
-        // Trigger debounced sync after removing item
-        debouncedSync();
+        void flush();
       },
     });
-
-    return () => {
-      if (syncTimeout) {
-        clearTimeout(syncTimeout);
-      }
-    };
-  }, [removeUpdateItem, url]);
+  }, [flush]);
 
   return null;
 }

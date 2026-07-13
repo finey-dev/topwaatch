@@ -5,7 +5,7 @@ import { PageTitle } from "@/pages/parts/util/PageTitle";
 export function RegisterPage() {
   return (
     <SubPageLayout>
-      <PageTitle subpage k="global.pages.register" />
+      <PageTitle subpage k="global.pages.register" noIndex />
       <RegisterFormPart />
     </SubPageLayout>
   );

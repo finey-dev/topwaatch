@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { To, useNavigate } from "react-router-dom";
 
 import { detailsPathFromMedia } from "@/backend/metadata/tmdb";
+import { LinkPreview } from "@/components/LinkPreview";
 import { WideContainer } from "@/components/layout/WideContainer";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useRandomTranslation } from "@/hooks/useRandomTranslation";
@@ -23,6 +24,7 @@ import { SearchLoadingPart } from "@/pages/parts/search/SearchLoadingPart";
 import { useAuthStore } from "@/stores/auth";
 import { usePreferencesStore } from "@/stores/preferences";
 import { MediaItem } from "@/utils/mediaTypes";
+import { toAbsoluteUrl } from "@/utils/siteMeta";
 
 import { Button } from "./About";
 import { FebboxRecommendationModal } from "./parts/home/FebboxRecommendationModal";
@@ -167,13 +169,17 @@ export function HomePage() {
     <HomeLayout showBg={showBg}>
       {!search && <FebboxRecommendationModal />}
       <div className="mb-0">
+        <LinkPreview
+          title={t("global.homeTitle")}
+          description={t("about.description")}
+          url={toAbsoluteUrl("/")}
+        />
         <Helmet>
           <style type="text/css">{`
             html, body {
               scrollbar-gutter: stable;
             }
           `}</style>
-          <title>{t("global.homeTitle")}</title>
         </Helmet>
         {enableFeatured ? (
           <FeaturedCarousel

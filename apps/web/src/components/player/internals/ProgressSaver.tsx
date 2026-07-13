@@ -1,19 +1,21 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type MutableRefObject } from "react";
 import { useInterval } from "react-use";
 
 import { playerStatus } from "@/stores/player/slices/source";
 import { usePlayerStore } from "@/stores/player/store";
 import { ProgressItem, useProgressStore } from "@/stores/progress";
+import { requestProgressSyncFlush } from "@/stores/progress/syncQueue";
+
+/** Local save interval — updates zustand + coalesced queue only (no network). */
+const LOCAL_SAVE_INTERVAL_MS = 10_000;
 
 function progressIsNotStarted(duration: number, watched: number): boolean {
-  // too short watch time
   if (watched < 20) return true;
   return false;
 }
 
 function progressIsCompleted(duration: number, watched: number): boolean {
   const timeFromEnd = duration - watched;
-  // too close to the end, is completed
   if (timeFromEnd < 60 * 2) return true;
   return false;
 }
@@ -25,20 +27,16 @@ function shouldSaveProgress(
 ): boolean {
   const { duration, watched } = progress;
 
-  // Check if progress is acceptable
   const isNotStarted = progressIsNotStarted(duration, watched);
   const isCompleted = progressIsCompleted(duration, watched);
   const isAcceptable = !isNotStarted && !isCompleted;
 
-  // For movies, only save if acceptable
   if (meta.type === "movie") {
     return isAcceptable;
   }
 
-  // For shows, save if acceptable OR if season has other watched episodes
   if (isAcceptable) return true;
 
-  // Check if this season has other episodes with progress
   const showItem = existingItems[meta.tmdbId];
   if (!showItem || !meta.season) return false;
 
@@ -46,7 +44,6 @@ function shouldSaveProgress(
     (episode: any) => episode.seasonId === meta.season.tmdbId,
   );
 
-  // Check if any other episode in this season has acceptable progress
   return seasonEpisodes.some((episode: any) => {
     const epProgress = episode.progress;
     return (
@@ -54,6 +51,34 @@ function shouldSaveProgress(
       !progressIsCompleted(epProgress.duration, epProgress.watched)
     );
   });
+}
+
+function saveProgressSnapshot(
+  meta: NonNullable<ReturnType<typeof usePlayerStore.getState>["meta"]>,
+  progress: { time: number; duration: number },
+  progressItems: Record<string, any>,
+  updateItem: ReturnType<typeof useProgressStore.getState>["updateItem"],
+  lastSavedRef: MutableRefObject<ProgressItem | null>,
+) {
+  const snapshot: ProgressItem = {
+    duration: progress.duration,
+    watched: progress.time,
+  };
+
+  let isDifferent = false;
+  if (!lastSavedRef.current) isDifferent = true;
+  else if (
+    lastSavedRef.current.duration !== snapshot.duration ||
+    lastSavedRef.current.watched !== snapshot.watched
+  ) {
+    isDifferent = true;
+  }
+
+  lastSavedRef.current = snapshot;
+
+  if (isDifferent && shouldSaveProgress(meta, snapshot, progressItems)) {
+    updateItem({ meta, progress: snapshot });
+  }
 }
 
 export function ProgressSaver() {
@@ -65,6 +90,7 @@ export function ProgressSaver() {
   const hasPlayedOnce = usePlayerStore((s) => s.mediaPlaying.hasPlayedOnce);
 
   const lastSavedRef = useRef<ProgressItem | null>(null);
+  const prevStatusRef = useRef(status);
 
   const dataRef = useRef({
     updateItem,
@@ -83,33 +109,41 @@ export function ProgressSaver() {
     dataRef.current.hasPlayedOnce = hasPlayedOnce;
   }, [updateItem, progressItems, progress, meta, status, hasPlayedOnce]);
 
+  // Periodic local save while playing.
   useInterval(() => {
     const d = dataRef.current;
     if (!d.progress || !d.meta || !d.updateItem) return;
     if (d.status !== playerStatus.PLAYING) return;
-    if (!hasPlayedOnce) return;
+    if (!d.hasPlayedOnce) return;
 
-    let isDifferent = false;
-    if (!lastSavedRef.current) isDifferent = true;
-    else if (
-      lastSavedRef.current?.duration !== progress.duration ||
-      lastSavedRef.current?.watched !== progress.time
-    )
-      isDifferent = true;
+    saveProgressSnapshot(
+      d.meta,
+      d.progress,
+      d.progressItems,
+      d.updateItem,
+      lastSavedRef,
+    );
+  }, LOCAL_SAVE_INTERVAL_MS);
 
-    lastSavedRef.current = {
-      duration: progress.duration,
-      watched: progress.time,
-    };
-    if (
-      isDifferent &&
-      shouldSaveProgress(d.meta, lastSavedRef.current, d.progressItems)
-    )
-      d.updateItem({
-        meta: d.meta,
-        progress: lastSavedRef.current,
-      });
-  }, 3000);
+  // Flush to server when playback stops (pause, navigate away, error, etc.).
+  useEffect(() => {
+    const d = dataRef.current;
+    const wasPlaying = prevStatusRef.current === playerStatus.PLAYING;
+    const isPlaying = status === playerStatus.PLAYING;
+
+    if (wasPlaying && !isPlaying && d.meta && d.progress && d.hasPlayedOnce) {
+      saveProgressSnapshot(
+        d.meta,
+        d.progress,
+        d.progressItems,
+        d.updateItem,
+        lastSavedRef,
+      );
+      requestProgressSyncFlush();
+    }
+
+    prevStatusRef.current = status;
+  }, [status, hasPlayedOnce, meta, progress, progressItems, updateItem]);
 
   return null;
 }

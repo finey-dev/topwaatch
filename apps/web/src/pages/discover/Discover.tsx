@@ -28,7 +28,7 @@ export function Discover() {
           `}</style>
       </Helmet>
 
-      <PageTitle subpage k="global.pages.discover" />
+      <PageTitle subpage k="global.pages.discover" descriptionKey="about.description" />
 
       <div className="!mt-[-170px]">
         {/* Featured Carousel */}

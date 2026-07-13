@@ -1,6 +1,6 @@
-import { Helmet } from "react-helmet-async";
 import { useTranslation } from "react-i18next";
 
+import { LinkPreview } from "@/components/LinkPreview";
 import { usePlayerStore } from "@/stores/player/store";
 
 export function HeadUpdater() {
@@ -10,17 +10,25 @@ export function HeadUpdater() {
   if (!meta) return null;
 
   let documentTitle: string;
-  if (meta.type === "show" && meta.season?.number != null && meta.episode?.number != null) {
+  if (
+    meta.type === "show" &&
+    meta.season?.number != null &&
+    meta.episode?.number != null
+  ) {
     documentTitle = t("global.pages.pagetitle", {
-      title: `${meta.title}: Season ${meta.season.number} Episode ${meta.episode.number}`,
+      title: `${meta.title}: S${meta.season.number}E${meta.episode.number}`,
     });
   } else {
     documentTitle = t("global.pages.pagetitle", { title: meta.title });
   }
 
   return (
-    <Helmet>
-      <title>{documentTitle}</title>
-    </Helmet>
+    <LinkPreview
+      title={documentTitle}
+      description={meta.overview}
+      image={meta.poster}
+      imageAlt={`Watch ${meta.title} on TopWaatch`}
+      type="video.other"
+    />
   );
 }

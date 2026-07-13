@@ -1,4 +1,3 @@
-import { auth } from "@topwaatch/auth";
 import {
   assertRateLimit,
   rateLimitKey,
@@ -8,6 +7,8 @@ import {
   takeScrapeResult,
   type ScrapeInput,
 } from "@topwaatch/api";
+import { auth } from "@topwaatch/auth";
+import { db } from "@topwaatch/db";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 
@@ -87,7 +88,7 @@ scrapeSseRoutes.get("/scrape/run", async (c) => {
   const userId = await resolveUserId(c.req.raw.headers);
 
   try {
-    assertRateLimit(rateLimitKey(userId, clientIp));
+    await assertRateLimit(db, rateLimitKey(userId, clientIp));
   } catch {
     return c.json({ error: "Rate limit exceeded" }, 429);
   }

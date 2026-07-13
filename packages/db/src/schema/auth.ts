@@ -44,6 +44,11 @@ export const session = pgTable(
     index("session_user_id_idx").on(table.userId),
     index("session_expires_at_idx").on(table.expiresAt),
     index("session_user_id_expires_at_idx").on(table.userId, table.expiresAt),
+    index("session_user_id_expires_at_updated_at_idx").on(
+      table.userId,
+      table.expiresAt,
+      table.updatedAt,
+    ),
   ],
 );
 
@@ -71,6 +76,7 @@ export const account = pgTable(
   (table) => [
     index("account_user_id_idx").on(table.userId),
     index("account_provider_id_user_id_idx").on(table.providerId, table.userId),
+    index("account_provider_id_account_id_idx").on(table.providerId, table.accountId),
   ],
 );
 

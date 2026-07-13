@@ -116,7 +116,7 @@ export function AboutPage() {
 
   return (
     <SubPageLayout>
-      <PageTitle subpage k="global.pages.about" />
+      <PageTitle subpage k="global.pages.about" descriptionKey="about.description" />
       <ThinContainer>
         <Heading1>{t("about.title")}</Heading1>
         <Paragraph>{t("about.description")}</Paragraph>

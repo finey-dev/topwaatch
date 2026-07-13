@@ -22,6 +22,20 @@
       "when": 1783761873362,
       "tag": "0002_majestic_skin",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1783923631302,
+      "tag": "0003_index_improvements",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1783923972184,
+      "tag": "0004_rate_limit_buckets",
+      "breakpoints": true
     }
   ]
 }

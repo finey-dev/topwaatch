@@ -41,6 +41,11 @@ export const progressItems = pgTable(
     index("progress_items_user_id_idx").on(table.userId),
     index("progress_items_user_id_updated_at_idx").on(table.userId, table.updatedAt),
     index("progress_items_user_id_tmdb_id_idx").on(table.userId, table.tmdbId),
+    index("progress_items_user_id_tmdb_id_season_id_idx").on(
+      table.userId,
+      table.tmdbId,
+      table.seasonId,
+    ),
   ],
 );
 

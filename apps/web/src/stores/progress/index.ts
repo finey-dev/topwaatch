@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 
 import { PlayerMeta } from "@/stores/player/slices/source";
+import { progressQueueKey } from "@/stores/progress/syncQueue";
 import { useWatchHistoryStore } from "@/stores/watchHistory";
 import {
   ProgressModificationOptions,
@@ -104,9 +105,8 @@ export const useProgressStore = create(
       },
       updateItem({ meta, progress }) {
         set((s) => {
-          // add to updateQueue
           updateId += 1;
-          s.updateQueue.push({
+          const queued: ProgressUpdateItem = {
             tmdbId: meta.tmdbId,
             title: meta.title,
             year: meta.releaseYear,
@@ -119,7 +119,15 @@ export const useProgressStore = create(
             seasonNumber: meta.season?.number,
             episodeNumber: meta.episode?.number,
             action: "upsert",
-          });
+          };
+
+          const key = progressQueueKey(queued);
+          const existingIdx = s.updateQueue.findIndex((q) => progressQueueKey(q) === key);
+          if (existingIdx >= 0) {
+            s.updateQueue[existingIdx] = queued;
+          } else {
+            s.updateQueue.push(queued);
+          }
 
           // add to progress store
           if (!s.items[meta.tmdbId])

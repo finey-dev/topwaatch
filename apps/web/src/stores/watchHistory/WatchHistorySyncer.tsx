@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 import {
   removeWatchHistory,
@@ -12,7 +12,21 @@ import {
   useWatchHistoryStore,
 } from "@/stores/watchHistory";
 
-const syncIntervalMs = 1 * 60 * 1000; // 1 minute intervals
+/** Low-volume writes — episode completions only. */
+const SYNC_INTERVAL_MS = 60_000;
+
+function coalesceWatchHistoryQueue(
+  items: WatchHistoryUpdateItem[],
+): WatchHistoryUpdateItem[] {
+  const latest = new Map<string, WatchHistoryUpdateItem>();
+  for (const item of items) {
+    const key = item.episodeId
+      ? `${item.action}:${item.tmdbId}:${item.episodeId}`
+      : `${item.action}:${item.tmdbId}`;
+    latest.set(key, item);
+  }
+  return [...latest.values()];
+}
 
 async function syncWatchHistory(
   items: WatchHistoryUpdateItem[],
@@ -20,11 +34,11 @@ async function syncWatchHistory(
   url: string,
   account: AccountWithToken | null,
 ) {
-  for (const item of items) {
-    // complete it beforehand so it doesn't get handled while in progress
+  const batch = coalesceWatchHistoryQueue(items);
+  for (const item of batch) {
     finish(item.id);
 
-    if (!account) continue; // not logged in, dont sync to server
+    if (!account) continue;
 
     try {
       if (item.action === "delete") {
@@ -44,7 +58,6 @@ async function syncWatchHistory(
           account,
           watchHistoryUpdateItemToInput(item),
         );
-        continue;
       }
     } catch (err) {
       console.error(
@@ -60,85 +73,65 @@ export function WatchHistorySyncer() {
   const removeUpdateItem = useWatchHistoryStore((s) => s.removeUpdateItem);
   const url = useBackendUrl();
 
-  // when booting for the first time, clear update queue.
-  // we dont want to process persisted update items
+  const flush = useCallback(async () => {
+    if (!url) return;
+    const state = useWatchHistoryStore.getState();
+    if (state.updateQueue.length === 0) return;
+    const user = useAuthStore.getState();
+    await syncWatchHistory(
+      state.updateQueue,
+      removeUpdateItem,
+      url,
+      user.account,
+    );
+  }, [removeUpdateItem, url]);
+
   useEffect(() => {
     clearUpdateQueue();
   }, [clearUpdateQueue]);
 
-  // Immediate sync when items are added or removed
   useEffect(() => {
-    let syncTimeout: NodeJS.Timeout | null = null;
+    const interval = setInterval(() => {
+      void flush();
+    }, SYNC_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [flush]);
 
-    const syncImmediately = async () => {
-      if (!url) return;
-      const state = useWatchHistoryStore.getState();
-      const user = useAuthStore.getState();
-      // Only sync if there are items in the queue
-      if (state.updateQueue.length > 0) {
-        await syncWatchHistory(
-          state.updateQueue,
-          removeUpdateItem,
-          url,
-          user.account,
-        );
+  useEffect(() => {
+    const onHide = () => {
+      void flush();
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        onHide();
       }
     };
 
-    const debouncedSync = () => {
-      if (syncTimeout) {
-        clearTimeout(syncTimeout);
-      }
-      syncTimeout = setTimeout(syncImmediately, 100);
+    window.addEventListener("pagehide", onHide);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.removeEventListener("pagehide", onHide);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
+  }, [flush]);
 
-    // Override the addItem function to trigger immediate sync
+  // Completions and deletes should sync soon — both are rare user-driven events.
+  useEffect(() => {
     const originalAddItem = useWatchHistoryStore.getState().addItem;
+    const originalRemoveItem = useWatchHistoryStore.getState().removeItem;
+
     useWatchHistoryStore.setState({
       addItem: (...args) => {
         originalAddItem(...args);
-        // Trigger debounced sync after adding item
-        debouncedSync();
+        void flush();
       },
-    });
-
-    // Override removeItem to trigger immediate sync
-    const originalRemoveItem = useWatchHistoryStore.getState().removeItem;
-    useWatchHistoryStore.setState({
       removeItem: (...args) => {
         originalRemoveItem(...args);
-        // Trigger debounced sync after removing item
-        debouncedSync();
+        void flush();
       },
     });
-
-    return () => {
-      if (syncTimeout) {
-        clearTimeout(syncTimeout);
-      }
-    };
-  }, [removeUpdateItem, url]);
-
-  // Regular interval sync
-  useEffect(() => {
-    const interval = setInterval(() => {
-      (async () => {
-        if (!url) return;
-        const state = useWatchHistoryStore.getState();
-        const user = useAuthStore.getState();
-        await syncWatchHistory(
-          state.updateQueue,
-          removeUpdateItem,
-          url,
-          user.account,
-        );
-      })();
-    }, syncIntervalMs);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [removeUpdateItem, url]);
+  }, [flush]);
 
   return null;
 }

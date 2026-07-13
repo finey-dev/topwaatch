@@ -26,17 +26,17 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
 });
 
 /** Public procedure with per-user / per-IP scrape rate limiting. */
-export const rateLimitedProcedure = publicProcedure.use(({ ctx, next }) => {
+export const rateLimitedProcedure = publicProcedure.use(async ({ ctx, next }) => {
   const key = rateLimitKey(ctx.session?.user?.id, ctx.clientIp);
-  assertRateLimit(key);
+  await assertRateLimit(ctx.db, key);
   return next({ ctx });
 });
 
 /** Authenticated + rate-limited  use when Better Auth is wired on all clients. */
 export const protectedRateLimitedProcedure = protectedProcedure.use(
-  ({ ctx, next }) => {
+  async ({ ctx, next }) => {
     const key = rateLimitKey(ctx.session.user.id, ctx.clientIp);
-    assertRateLimit(key);
+    await assertRateLimit(ctx.db, key);
     return next({ ctx });
   },
 );

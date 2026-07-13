@@ -1,5 +1,6 @@
-import { Helmet } from "react-helmet-async";
 import { useTranslation } from "react-i18next";
+
+import { LinkPreview } from "@/components/LinkPreview";
 
 export interface PageTitleProps {
   /** i18n key for the page name, or pass `title` for a raw string */
@@ -7,6 +8,12 @@ export interface PageTitleProps {
   title?: string;
   /** When true, formats as "TopWaatch - {page}" */
   subpage?: boolean;
+  /** Plain description override */
+  description?: string;
+  /** i18n key for meta description */
+  descriptionKey?: string;
+  image?: string | null;
+  noIndex?: boolean;
 }
 
 export function PageTitle(props: PageTitleProps) {
@@ -16,10 +23,16 @@ export function PageTitle(props: PageTitleProps) {
   const documentTitle = props.subpage
     ? t("global.pages.pagetitle", { title: pageName })
     : pageName;
+  const description =
+    props.description ??
+    (props.descriptionKey ? t(props.descriptionKey) : undefined);
 
   return (
-    <Helmet>
-      <title>{documentTitle}</title>
-    </Helmet>
+    <LinkPreview
+      title={documentTitle}
+      description={description}
+      image={props.image}
+      noIndex={props.noIndex}
+    />
   );
 }

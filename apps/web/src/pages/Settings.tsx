@@ -974,7 +974,7 @@ function SettingsPageContent() {
   ]);
   return (
     <SubPageLayout>
-      <PageTitle subpage k="global.pages.settings" />
+      <PageTitle subpage k="global.pages.settings" noIndex />
       <SettingsLayout
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}

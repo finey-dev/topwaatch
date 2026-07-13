@@ -5,7 +5,7 @@ import { PageTitle } from "@/pages/parts/util/PageTitle";
 export function LoginPage() {
   return (
     <SubPageLayout>
-      <PageTitle subpage k="global.pages.login" />
+      <PageTitle subpage k="global.pages.login" noIndex />
       <LoginFormPart />
     </SubPageLayout>
   );

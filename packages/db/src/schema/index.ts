@@ -6,4 +6,5 @@ export * from "./user-settings";
 export * from "./lists";
 export * from "./user-group-order";
 export * from "./user-profile";
+export * from "./rate-limit";
 export * from "./relations";

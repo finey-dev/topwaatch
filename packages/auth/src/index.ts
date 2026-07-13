@@ -1,5 +1,5 @@
 import { expo } from "@better-auth/expo";
-import { createDb } from "@topwaatch/db";
+import { db, type Db } from "@topwaatch/db";
 import * as schema from "@topwaatch/db/schema/auth";
 import { env } from "@topwaatch/env/server";
 import { betterAuth, APIError } from "better-auth";
@@ -14,11 +14,9 @@ export const ACCOUNT_DEACTIVATED_CODE = "ACCOUNT_DEACTIVATED";
 export const ACCOUNT_DEACTIVATED_MESSAGE =
   "ACCOUNT_DEACTIVATED: This account is deactivated. You cannot sign in. To reactivate your account, email topwaatch@gmail.com.";
 
-export function createAuth() {
-  const db = createDb();
-
+export function createAuth(database: Db = db) {
   return betterAuth({
-    database: drizzleAdapter(db, {
+    database: drizzleAdapter(database, {
       provider: "pg",
       schema: schema,
     }),
@@ -50,7 +48,7 @@ export function createAuth() {
         create: {
           // Deactivated accounts cannot create sessions / sign in.
           before: async (session) => {
-            const row = await db.query.user.findFirst({
+            const row = await database.query.user.findFirst({
               where: eq(schema.user.id, session.userId),
               columns: { deactivatedAt: true },
             });
