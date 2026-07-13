@@ -28,7 +28,13 @@ export function HeadUpdater() {
       description={meta.overview}
       image={meta.poster}
       imageAlt={`Watch ${meta.title} on TopWaatch`}
-      type="video.other"
+      type={
+        meta.type === "movie"
+          ? "video.movie"
+          : meta.type === "show"
+            ? "video.tv_show"
+            : "video.other"
+      }
     />
   );
 }

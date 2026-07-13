@@ -116,6 +116,13 @@ export function DetailsPage() {
             ? `${detailsData.title} on TopWaatch`
             : undefined
         }
+        type={
+          detailsData?.type === "movie"
+            ? "video.movie"
+            : detailsData?.type === "show"
+              ? "video.tv_show"
+              : "website"
+        }
       />
       <BlurEllipsis />
       <FooterView>

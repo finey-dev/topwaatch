@@ -22,7 +22,7 @@ export type LinkPreviewProps = {
   imageAlt?: string;
   /** Canonical URL override */
   url?: string;
-  type?: "website" | "video.other" | "video.movie" | "video.episode";
+  type?: "website" | "video.other" | "video.movie" | "video.tv_show" | "video.episode";
   noIndex?: boolean;
 };
 
