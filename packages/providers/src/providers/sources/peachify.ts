@@ -1,3 +1,8 @@
+/**
+ * Peachify embed source (ARCHIVED — disabled in gatherAllSources).
+ * Kept for reference; removed from the active source list due to reliability issues.
+ * To restore: uncomment import + entry in providers/all.ts.
+ */
 import { flags } from '@/entrypoint/utils/targets';
 import { SourcererOutput, makeSourcerer } from '@/providers/base';
 import { MovieScrapeContext, ShowScrapeContext } from '@/utils/context';
@@ -42,7 +47,7 @@ export const peachifyScraper = makeSourcerer({
   id: 'peachify',
   name: 'Peachify',
   rank: 185,
-  disabled: false,
+  disabled: true,
   flags: [flags.CORS_ALLOWED],
   scrapeMovie: comboScraper,
   scrapeShow: comboScraper,
