@@ -22,12 +22,14 @@ import { WatchingGrid } from "@/pages/parts/home/WatchingGrid";
 import { SearchListPart } from "@/pages/parts/search/SearchListPart";
 import { SearchLoadingPart } from "@/pages/parts/search/SearchLoadingPart";
 import { useAuthStore } from "@/stores/auth";
+import { useBannerStore } from "@/stores/banner";
 import { usePreferencesStore } from "@/stores/preferences";
 import { MediaItem } from "@/utils/mediaTypes";
 import { toAbsoluteUrl } from "@/utils/siteMeta";
 
 import { Button } from "./About";
 import { FebboxRecommendationModal } from "./parts/home/FebboxRecommendationModal";
+import { OfflineHomePart } from "./parts/home/OfflineHomePart";
 // Re-enable when a TopWaatch rebrand/announcement banner is needed again.
 // import { RevivalAnnouncementModal } from "./parts/home/RevivalAnnouncementModal";
 
@@ -81,6 +83,7 @@ export function HomePage() {
   const homeSectionOrder = usePreferencesStore(
     (state) => state.homeSectionOrder,
   );
+  const isOnline = useBannerStore((state) => state.isOnline);
 
   const sectionsToRender = useMemo(() => {
     // Continue watching / bookmarks only for logged-in users
@@ -167,7 +170,7 @@ export function HomePage() {
 
   return (
     <HomeLayout showBg={showBg}>
-      {!search && <FebboxRecommendationModal />}
+      {!search && isOnline && <FebboxRecommendationModal />}
       <div className="mb-0">
         <LinkPreview
           title={t("global.homeTitle")}
@@ -181,7 +184,7 @@ export function HomePage() {
             }
           `}</style>
         </Helmet>
-        {enableFeatured ? (
+        {enableFeatured && isOnline ? (
           <FeaturedCarousel
             forcedCategory="movies"
             onShowDetails={handleShowDetails}
@@ -210,7 +213,9 @@ export function HomePage() {
       {/* Search */}
       {search && (
         <WideContainer>
-          {s.loading ? (
+          {!isOnline ? (
+            <OfflineHomePart />
+          ) : s.loading ? (
             <SearchLoadingPart />
           ) : (
             s.searching && (
@@ -231,6 +236,13 @@ export function HomePage() {
       )}
 
       {/* Under user content */}
+      {!search && !isOnline ? (
+        <WideContainer ultraWide classNames="!px-3 md:!px-9">
+          <OfflineHomePart
+            showLoggedInHint={Boolean(account && (showBookmarks || showWatching))}
+          />
+        </WideContainer>
+      ) : (
       <WideContainer ultraWide classNames="!px-3 md:!px-9">
         {/* Empty text */}
         {!(showBookmarks || showWatching) &&
@@ -269,6 +281,7 @@ export function HomePage() {
           </div>
         )}
       </WideContainer>
+      )}
     </HomeLayout>
   );
 }

@@ -478,6 +478,13 @@
       "discoverMore": "Discover more",
       "discover": "Discover"
     },
+    "offline": {
+      "title": "You're offline",
+      "description": "TopWaatch needs an internet connection to browse movies and shows. Reconnect, then try again.",
+      "loggedInHint": "Your watch progress and bookmarks saved on this device are still shown above.",
+      "retry": "Try again",
+      "checking": "Checking connection..."
+    },
     "mediaCard": {
       "moreInfo": "More Info",
       "copyLink": "Copy Link",

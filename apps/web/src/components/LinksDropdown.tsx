@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { Icon, Icons } from "@/components/Icon";
 import { Transition } from "@/components/utils/Transition";
 import { useAuth } from "@/hooks/auth/useAuth";
-import { useIsDesktopApp } from "@/hooks/useIsDesktopApp";
 import {
   getUserInitialFaceAvatarUrl,
   isUserLoggedIn,
@@ -139,7 +138,6 @@ export function LinksDropdown(props: { children: React.ReactNode }) {
   const enableLowPerformanceMode = usePreferencesStore(
     (s) => s.enableLowPerformanceMode,
   );
-  const isDesktopApp = useIsDesktopApp();
 
   return (
     <div className="relative is-dropdown">
@@ -170,26 +168,6 @@ export function LinksDropdown(props: { children: React.ReactNode }) {
               {t("navigation.menu.settings")}
             </DropdownLink>
           ) : null}
-          {isDesktopApp && (
-            <>
-              <DropdownLink
-                onClick={() =>
-                  window.dispatchEvent(
-                    new CustomEvent("topwaatch-desktop-settings"),
-                  )
-                }
-                icon={Icons.GEAR}
-              >
-                {t("navigation.menu.desktop")}
-              </DropdownLink>
-              <DropdownLink
-                onClick={() => window.desktopApi?.openOffline()}
-                icon={Icons.DOWNLOAD}
-              >
-                Offline Downloads
-              </DropdownLink>
-            </>
-          )}
           <DropdownLink href="/about" icon={Icons.CIRCLE_QUESTION}>
             {t("navigation.menu.about")}
           </DropdownLink>

@@ -35,7 +35,7 @@ import { useLanguageStore } from "@/stores/language";
 import { usePreferencesStore } from "@/stores/preferences";
 import { useSubtitleStore } from "@/stores/subtitles";
 import { useThemeStore } from "@/stores/theme";
-import { scrollToElement, scrollToHash } from "@/utils/scroll";
+import { applySettingsHashNavigation, scrollToElement } from "@/utils/scroll";
 
 import { SubPageLayout } from "./layouts/SubPageLayout";
 import { AppInfoPart } from "./parts/settings/AppInfoPart";
@@ -148,98 +148,13 @@ function SettingsPageContent() {
   >(null);
 
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash) {
-      const hashId = hash.substring(1); // Remove the # symbol
-      // Check if it's a valid settings category
-      const validCategories = [
-        "settings-account",
-        "settings-preferences",
-        "settings-appearance",
-        "settings-captions",
-        "settings-connection",
-        "settings-import",
-      ];
-
-      // Map sub-section hashes to their parent categories
-      const subSectionToCategory: Record<string, string> = {
-        "source-order": "settings-preferences",
-        "topwaatch-cinema": "settings-connection",
-      };
-
-      // Check if it's a sub-section hash
-      if (subSectionToCategory[hashId]) {
-        const categoryId = subSectionToCategory[hashId];
-        setSelectedCategory(categoryId);
-        // Wait for the section to render, then scroll
-        scrollToHash(hash, { delay: 100 });
-      } else if (validCategories.includes(hashId)) {
-        // It's a category hash
-        setSelectedCategory(hashId);
-        scrollToHash(hash);
-      } else {
-        // Try to find the element anyway (might be a sub-section)
-        const element = document.querySelector(hash);
-        if (element) {
-          // Find which category this element belongs to
-          const parentSection = element.closest('[id^="settings-"]');
-          if (parentSection) {
-            const categoryId = parentSection.id;
-            if (validCategories.includes(categoryId)) {
-              setSelectedCategory(categoryId);
-              scrollToHash(hash, { delay: 100 });
-            }
-          } else {
-            scrollToHash(hash);
-          }
-        }
-      }
-    }
-     
+    applySettingsHashNavigation(window.location.hash, setSelectedCategory);
   }, []);
 
   // Handle hash changes after initial load
   useEffect(() => {
     const handleHashChange = () => {
-      const hash = window.location.hash;
-      if (hash) {
-        const hashId = hash.substring(1);
-        const validCategories = [
-          "settings-account",
-          "settings-preferences",
-          "settings-appearance",
-          "settings-captions",
-          "settings-connection",
-          "settings-import",
-        ];
-        const subSectionToCategory: Record<string, string> = {
-          "source-order": "settings-preferences",
-          "topwaatch-cinema": "settings-connection",
-        };
-
-        if (subSectionToCategory[hashId]) {
-          const categoryId = subSectionToCategory[hashId];
-          setSelectedCategory(categoryId);
-          scrollToHash(hash, { delay: 100 });
-        } else if (validCategories.includes(hashId)) {
-          setSelectedCategory(hashId);
-          scrollToHash(hash, { delay: 100 });
-        } else {
-          const element = document.querySelector(hash);
-          if (element) {
-            const parentSection = element.closest('[id^="settings-"]');
-            if (parentSection) {
-              const categoryId = parentSection.id;
-              if (validCategories.includes(categoryId)) {
-                setSelectedCategory(categoryId);
-                scrollToHash(hash, { delay: 100 });
-              }
-            } else {
-              scrollToHash(hash);
-            }
-          }
-        }
-      }
+      applySettingsHashNavigation(window.location.hash, setSelectedCategory);
     };
 
     window.addEventListener("hashchange", handleHashChange);
