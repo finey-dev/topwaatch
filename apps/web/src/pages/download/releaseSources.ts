@@ -15,7 +15,7 @@ export const DESKTOP_RELEASE_TAG_PREFIX =
 
 export const DESKTOP_MANIFEST_URL =
   import.meta.env.VITE_DESKTOP_MANIFEST_URL ??
-  `https://raw.githubusercontent.com/${DESKTOP_RELEASES_REPO}/main/apps/desktop/releases/desktop-manifest.json`;
+  `https://raw.githubusercontent.com/${DESKTOP_RELEASES_REPO}/master/apps/desktop/releases/desktop-manifest.json`;
 
 export type DesktopVariantId = LinuxVariantId | WindowsVariantId;
 

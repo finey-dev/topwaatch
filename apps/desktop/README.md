@@ -39,7 +39,7 @@ bunx tauri signer generate -w ~/.tauri/topwaatch-desktop.key
 2. Store the **private key** in GitHub Actions secrets as `TAURI_SIGNING_PRIVATE_KEY`
 3. If encrypted, also set `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`
 
-The app checks `apps/desktop/releases/latest.json` on startup (committed to `main` by CI after each release).
+The app checks `apps/desktop/releases/latest.json` on startup (committed to the default branch by CI after each release).
 
 ## CI/CD
 
@@ -65,7 +65,7 @@ It then uploads GitHub Release assets, generates:
 - `desktop-manifest.json` — used by the download page
 - `latest.json` — used by the in-app updater
 
-Both files are committed to `apps/desktop/releases/` on `main`.
+Both files are committed to `apps/desktop/releases/` on the default branch (`master`).
 
 ## Download page
 
