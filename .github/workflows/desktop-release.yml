@@ -117,6 +117,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           projectPath: apps/desktop
+          tauriScript: bun run tauri
           tagName: ${{ needs.prepare.outputs.tag }}
           releaseName: TopWaatch Desktop v${{ needs.prepare.outputs.version }}
           releaseBody: |
