@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import { SidebarSection } from "@/components/layout/Sidebar";
+import { DesktopUpdatesPart } from "@/pages/parts/settings/DesktopUpdatesPart";
 import { conf } from "@/setup/config";
 
 export function AppInfoPart() {
@@ -35,6 +36,8 @@ export function AppInfoPart() {
             {conf().APP_VERSION}
           </p>
         </div>
+
+        <DesktopUpdatesPart />
       </div>
     </SidebarSection>
   );

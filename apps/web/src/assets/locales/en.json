@@ -1605,8 +1605,19 @@
       "info": {
         "appName": "App name",
         "appVersion": "App version",
+        "desktopVersion": "Desktop {{version}}",
         "hostname": "Hostname",
-        "title": "App info"
+        "title": "App info",
+        "updates": {
+          "checkButton": "Check for updates",
+          "checking": "Checking for updates…",
+          "downloading": "Downloading update {{progress}}%…",
+          "downloadingUnknown": "Downloading update…",
+          "failed": "Update failed. Try again or download manually from the website.",
+          "installing": "Installing update…",
+          "restarting": "Restarting TopWaatch…",
+          "upToDate": "You're on the latest version."
+        }
       }
     },
     "subtitles": {

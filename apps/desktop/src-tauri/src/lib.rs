@@ -13,7 +13,10 @@ pub fn run() {
 
                 if let Err(error) = run_startup_update(&handle).await {
                     log::warn!("startup update check failed: {error}");
-                    set_splash_status(&handle, "Starting TopWaatch…");
+                    set_splash_status(
+                        &handle,
+                        "Update failed — starting TopWaatch…",
+                    );
                 }
 
                 close_splash_and_show_main(&handle);

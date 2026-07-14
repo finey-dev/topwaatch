@@ -42,10 +42,36 @@ const VARIANT_MATCHERS = [
   },
 ];
 
-const UPDATER_PLATFORM_MATCHERS = [
-  { key: "linux-x86_64", test: (name) => /\.AppImage\.sig$/i.test(name) && /(amd64|x86_64|x64)/i.test(name) },
-  { key: "linux-aarch64", test: (name) => /\.AppImage\.sig$/i.test(name) && /(aarch64|arm64|arm)/i.test(name) },
-  { key: "windows-x86_64", test: (name) => /-setup\.exe\.sig$/i.test(name) || (/\.exe\.sig$/i.test(name) && /(x64|x86_64|amd64)/i.test(name)) },
+// Tauri looks up `{os}-{arch}-{bundle}` first (e.g. linux-x86_64-deb), then falls back to
+// `{os}-{arch}`. Each installed bundle type must get a matching artifact URL or install fails
+// after download (e.g. deb install rejecting an AppImage payload).
+const UPDATER_ARTIFACT_MATCHERS = [
+  {
+    keys: ["linux-x86_64-appimage", "linux-x86_64"],
+    test: (name) => /\.AppImage\.sig$/i.test(name) && /(amd64|x86_64|x64)/i.test(name),
+  },
+  {
+    keys: ["linux-aarch64-appimage", "linux-aarch64"],
+    test: (name) => /\.AppImage\.sig$/i.test(name) && /(aarch64|arm64|arm)/i.test(name),
+  },
+  {
+    keys: ["linux-x86_64-deb"],
+    test: (name) => /\.deb\.sig$/i.test(name) && /(amd64|x86_64|x64)/i.test(name),
+  },
+  {
+    keys: ["linux-x86_64-rpm"],
+    test: (name) => /\.rpm\.sig$/i.test(name) && /(x86_64|amd64|x64)/i.test(name),
+  },
+  {
+    keys: ["windows-x86_64-nsis", "windows-x86_64"],
+    test: (name) =>
+      /-setup\.exe\.sig$/i.test(name) ||
+      (/\.exe\.sig$/i.test(name) && /(x64|x86_64|amd64)/i.test(name)),
+  },
+  {
+    keys: ["windows-x86_64-msi"],
+    test: (name) => /\.msi\.sig$/i.test(name) && /(x64|x86_64|amd64)/i.test(name),
+  },
 ];
 
 function parseArgs(argv) {
@@ -123,16 +149,19 @@ async function main() {
   };
 
   const platforms = {};
-  for (const { key, test } of UPDATER_PLATFORM_MATCHERS) {
+  for (const { keys, test } of UPDATER_ARTIFACT_MATCHERS) {
     const sigFile = files.find((name) => test(name));
     if (!sigFile) continue;
     const binaryName = sigFile.replace(/\.sig$/i, "");
     const signature = await readSignature(assetsDir, binaryName);
     if (!signature) continue;
-    platforms[key] = {
+    const entry = {
       url: releaseAssetUrl(repo, tag, binaryName),
       signature,
     };
+    for (const key of keys) {
+      platforms[key] = entry;
+    }
   }
 
   const latestJson = {
