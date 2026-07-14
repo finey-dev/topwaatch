@@ -27,6 +27,10 @@ export function createAuth(database: Db = db) {
       "topwaatch://",
       "exp://",
       "http://localhost:8081",
+      // Tauri 2 desktop webview origins
+      "http://tauri.localhost",
+      "https://tauri.localhost",
+      "tauri://localhost",
     ],
     emailAndPassword: {
       enabled: true,

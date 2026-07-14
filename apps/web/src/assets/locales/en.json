@@ -542,6 +542,13 @@
       "donate": "Donate",
       "label": "Project Funding: ${{current}} / ${{goal}}",
       "complete": "complete"
+    },
+    "febboxRecommendation": {
+      "title": "Get the most out of TopWaatch",
+      "body": "For the best streaming experience and to enjoy everything TopWaatch has to offer, setting up a free Febbox account will greatly improve how you stream, faster loads, premium sources like TopWaatch Nova and Orbit, and higher quality when available.",
+      "note": "Setup takes a minute in Settings. Your Febbox session stays on your device and is only used to request streams.",
+      "setupCta": "Set up Febbox",
+      "dismiss": "Maybe later"
     }
   },
   "media": {
@@ -1676,8 +1683,8 @@
   },
   "fedapi": {
     "onboarding": {
-      "title": "TopWaatch 4K",
-      "description": "Connect a free Febbox account to unlock TopWaatch 4K  premium sources with 4K quality, Dolby Atmos, skip intro and the fastest load times. Highly recommended!",
+      "title": "Get the most out of TopWaatch",
+      "description": "For the best streaming experience and to enjoy everything TopWaatch has to offer, setting up a free Febbox account will greatly improve how you stream — faster loads, premium sources, and higher quality when available.",
       "note": "Your Febbox session stays on your device and is only used to request streams from Febbox."
     },
     "setup": {

@@ -9,13 +9,10 @@ on:
       version:
         description: "Release version (e.g. 0.1.0). Tag will be desktop-v{version}."
         required: true
-        default: "0.1.0"
+        default: "0.1.1"
 
 permissions:
   contents: write
-
-env:
-  DESKTOP_RELEASES_REPO: finey-dev/topwaatch
 
 jobs:
   prepare:
@@ -57,8 +54,63 @@ jobs:
             rust_target: x86_64-pc-windows-msvc
 
     runs-on: ${{ matrix.os }}
+    env:
+      # Vite inlines VITE_* at build time (beforeBuildCommand).
+      # All values: Settings → Secrets and variables → Actions → Secrets
+      VITE_NORMAL_ROUTER: ${{ secrets.VITE_NORMAL_ROUTER }}
+      VITE_DESKTOP_APP: ${{ secrets.VITE_DESKTOP_APP }}
+      VITE_OPENSEARCH_ENABLED: ${{ secrets.VITE_OPENSEARCH_ENABLED }}
+      VITE_ALLOW_FEBBOX_KEY: ${{ secrets.VITE_ALLOW_FEBBOX_KEY }}
+      VITE_USE_TRAKT: ${{ secrets.VITE_USE_TRAKT }}
+      VITE_DESKTOP_RELEASES_REPO: ${{ secrets.VITE_DESKTOP_RELEASES_REPO }}
+      VITE_DESKTOP_RELEASE_TAG_PREFIX: ${{ secrets.VITE_DESKTOP_RELEASE_TAG_PREFIX }}
+      VITE_APP_DOMAIN: ${{ secrets.VITE_APP_DOMAIN }}
+      VITE_BACKEND_URL: ${{ secrets.VITE_BACKEND_URL }}
+      VITE_CORS_PROXY_URL: ${{ secrets.VITE_CORS_PROXY_URL }}
+      VITE_M3U8_PROXY_URL: ${{ secrets.VITE_M3U8_PROXY_URL }}
+      VITE_FEBBOX_CLIENT_ID: ${{ secrets.VITE_FEBBOX_CLIENT_ID }}
+      VITE_FEBBOX_REDIRECT_URI: ${{ secrets.VITE_FEBBOX_REDIRECT_URI }}
+      VITE_TRAKT_CLIENT_ID: ${{ secrets.VITE_TRAKT_CLIENT_ID }}
+      VITE_TRAKT_REDIRECT_URI: ${{ secrets.VITE_TRAKT_REDIRECT_URI }}
+      VITE_TMDB_READ_API_KEY: ${{ secrets.VITE_TMDB_READ_API_KEY }}
+      VITE_TRAKT_CLIENT_SECRET: ${{ secrets.VITE_TRAKT_CLIENT_SECRET }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Verify desktop build env
+        shell: bash
+        run: |
+          missing=()
+          required=(
+            VITE_NORMAL_ROUTER
+            VITE_DESKTOP_APP
+            VITE_OPENSEARCH_ENABLED
+            VITE_ALLOW_FEBBOX_KEY
+            VITE_USE_TRAKT
+            VITE_DESKTOP_RELEASES_REPO
+            VITE_DESKTOP_RELEASE_TAG_PREFIX
+            VITE_APP_DOMAIN
+            VITE_BACKEND_URL
+            VITE_CORS_PROXY_URL
+            VITE_M3U8_PROXY_URL
+            VITE_FEBBOX_CLIENT_ID
+            VITE_FEBBOX_REDIRECT_URI
+            VITE_TRAKT_CLIENT_ID
+            VITE_TRAKT_REDIRECT_URI
+            VITE_TMDB_READ_API_KEY
+            VITE_TRAKT_CLIENT_SECRET
+          )
+          for key in "${required[@]}"; do
+            if [[ -z "${!key:-}" ]]; then
+              missing+=("$key")
+            fi
+          done
+          if ((${#missing[@]} > 0)); then
+            echo "Missing GitHub Actions configuration for desktop build:" >&2
+            printf '  - %s\n' "${missing[@]}" >&2
+            echo "Add missing keys under Settings → Secrets and variables → Actions → Secrets" >&2
+            exit 1
+          fi
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -118,6 +170,23 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          VITE_NORMAL_ROUTER: ${{ secrets.VITE_NORMAL_ROUTER }}
+          VITE_DESKTOP_APP: ${{ secrets.VITE_DESKTOP_APP }}
+          VITE_OPENSEARCH_ENABLED: ${{ secrets.VITE_OPENSEARCH_ENABLED }}
+          VITE_ALLOW_FEBBOX_KEY: ${{ secrets.VITE_ALLOW_FEBBOX_KEY }}
+          VITE_USE_TRAKT: ${{ secrets.VITE_USE_TRAKT }}
+          VITE_DESKTOP_RELEASES_REPO: ${{ secrets.VITE_DESKTOP_RELEASES_REPO }}
+          VITE_DESKTOP_RELEASE_TAG_PREFIX: ${{ secrets.VITE_DESKTOP_RELEASE_TAG_PREFIX }}
+          VITE_APP_DOMAIN: ${{ secrets.VITE_APP_DOMAIN }}
+          VITE_BACKEND_URL: ${{ secrets.VITE_BACKEND_URL }}
+          VITE_CORS_PROXY_URL: ${{ secrets.VITE_CORS_PROXY_URL }}
+          VITE_M3U8_PROXY_URL: ${{ secrets.VITE_M3U8_PROXY_URL }}
+          VITE_FEBBOX_CLIENT_ID: ${{ secrets.VITE_FEBBOX_CLIENT_ID }}
+          VITE_FEBBOX_REDIRECT_URI: ${{ secrets.VITE_FEBBOX_REDIRECT_URI }}
+          VITE_TRAKT_CLIENT_ID: ${{ secrets.VITE_TRAKT_CLIENT_ID }}
+          VITE_TRAKT_REDIRECT_URI: ${{ secrets.VITE_TRAKT_REDIRECT_URI }}
+          VITE_TMDB_READ_API_KEY: ${{ secrets.VITE_TMDB_READ_API_KEY }}
+          VITE_TRAKT_CLIENT_SECRET: ${{ secrets.VITE_TRAKT_CLIENT_SECRET }}
         with:
           projectPath: apps/desktop
           tauriScript: bun run tauri
@@ -160,7 +229,7 @@ jobs:
           node scripts/desktop/generate-release-manifest.mjs \
             --version "${{ needs.prepare.outputs.version }}" \
             --tag "${{ needs.prepare.outputs.tag }}" \
-            --repo "${{ env.DESKTOP_RELEASES_REPO }}" \
+            --repo "${{ secrets.VITE_DESKTOP_RELEASES_REPO }}" \
             --assets-dir release-assets \
             --out-dir apps/desktop/releases
 

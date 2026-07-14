@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import { IconPatch } from "@/components/buttons/IconPatch";
@@ -9,56 +10,47 @@ import { Flare } from "@/components/utils/Flare";
 import { conf } from "@/setup/config";
 import { useAuthStore } from "@/stores/auth";
 import { usePreferencesStore } from "@/stores/preferences";
+import {
+  hasTopWaatchCinemaSetup,
+  TW_CINEMA_SETUP_PATH,
+} from "@/utils/topwaatchSources";
 
 const MODAL_ID = "febbox-recommendation";
-const STORAGE_KEY = "topwaatch::febbox-recommendation-dismissed";
-
-function hasFebboxKey(key: string | null | undefined): boolean {
-  return Boolean(key && key.trim().length > 0);
-}
 
 /**
- * One-time prompt for logged-in users who have not connected a Febbox account.
+ * Prompt on the home page for logged-in users without Febbox / TopWaatch Cinema.
+ * Shown again on each visit to the root page until they connect Febbox.
  */
 export function FebboxRecommendationModal() {
+  const { t } = useTranslation();
   const modal = useModal(MODAL_ID);
   const navigate = useNavigate();
   const account = useAuthStore((s) => s.account);
   const febboxKey = usePreferencesStore((s) => s.febboxKey);
-  const [shouldShow, setShouldShow] = useState(false);
+  const [dismissedThisVisit, setDismissedThisVisit] = useState(false);
 
-  useEffect(() => {
-    if (!conf().ALLOW_FEBBOX_KEY) return;
-    if (!account) return;
-    if (hasFebboxKey(febboxKey)) return;
+  const needsSetup =
+    Boolean(account) &&
+    conf().ALLOW_FEBBOX_KEY &&
+    !hasTopWaatchCinemaSetup(febboxKey);
 
-    try {
-      if (localStorage.getItem(STORAGE_KEY) === "1") return;
-    } catch {
-      // ignore
-    }
-
-    setShouldShow(true);
-  }, [account, febboxKey]);
+  const shouldShow = needsSetup && !dismissedThisVisit;
 
   useEffect(() => {
     if (shouldShow) modal.show();
+    else modal.hide();
   }, [shouldShow, modal]);
 
   const dismiss = useCallback(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, "1");
-    } catch {
-      // ignore
-    }
-    setShouldShow(false);
+    setDismissedThisVisit(true);
     modal.hide();
   }, [modal]);
 
   const goToSetup = useCallback(() => {
-    dismiss();
-    navigate("/settings#settings-connection");
-  }, [dismiss, navigate]);
+    setDismissedThisVisit(true);
+    modal.hide();
+    navigate(TW_CINEMA_SETUP_PATH);
+  }, [modal, navigate]);
 
   if (!shouldShow) return null;
 
@@ -77,7 +69,7 @@ export function FebboxRecommendationModal() {
               <Flare.Child className="pointer-events-auto relative">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-bold text-white">
-                    Connect TopWaatch Cinema
+                    {t("home.febboxRecommendation.title")}
                   </h2>
                   <button
                     type="button"
@@ -88,32 +80,22 @@ export function FebboxRecommendationModal() {
                   </button>
                 </div>
                 <div className="space-y-4 text-base text-type-secondary">
-                  <p>
-                    For the best streaming experience, we recommend connecting a
-                    free{" "}
-                    <span className="text-white">Febbox</span> account. This
-                    unlocks TopWaatch Nova and Orbit  premium 4K sources with
-                    fast load times.
-                  </p>
-                  <p className="text-sm">
-                    Don&apos;t have a Febbox account yet? We&apos;ll walk you
-                    through creating one and linking it in Settings using the
-                    manual setup guide.
-                  </p>
+                  <p>{t("home.febboxRecommendation.body")}</p>
+                  <p className="text-sm">{t("home.febboxRecommendation.note")}</p>
                   <div className="flex flex-col gap-2 pt-1">
                     <button
                       type="button"
                       onClick={goToSetup}
                       className="block w-full text-center bg-purple-500/90 hover:bg-purple-500 text-white py-2.5 px-4 rounded-xl transition-colors font-semibold"
                     >
-                      Set up in Settings
+                      {t("home.febboxRecommendation.setupCta")}
                     </button>
                     <button
                       type="button"
                       onClick={dismiss}
                       className="block w-full text-center bg-video-context-light/10 hover:bg-video-context-light/20 text-white py-2 px-4 rounded-xl transition-colors text-sm"
                     >
-                      Maybe later
+                      {t("home.febboxRecommendation.dismiss")}
                     </button>
                   </div>
                 </div>

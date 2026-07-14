@@ -20,6 +20,10 @@ const corsOrigins = new Set(
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:8081",
+    // Tauri 2 desktop webview origins
+    "http://tauri.localhost",
+    "https://tauri.localhost",
+    "tauri://localhost",
   ].filter(Boolean),
 );
 

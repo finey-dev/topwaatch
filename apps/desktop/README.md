@@ -71,7 +71,40 @@ Both files are committed to `apps/desktop/releases/` on the default branch (`mas
 
 The web download page polls GitHub every 60 seconds and marks each desktop target as **Available** when a matching artifact exists in the latest `desktop-v*` release.
 
-Configure via `apps/web/.env.desktop`:
+Release builds read all config from **GitHub Actions secrets** — nothing is committed to the repo. Copy values from your Vercel production env where the keys match.
 
-- `VITE_DESKTOP_RELEASES_REPO=finey-dev/topwaatch`
-- `VITE_DESKTOP_RELEASE_TAG_PREFIX=desktop-v`
+### GitHub Actions secrets
+
+**Settings → Secrets and variables → Actions → Secrets**
+
+| Secret | Example (production) |
+|--------|----------------------|
+| `VITE_NORMAL_ROUTER` | `false` |
+| `VITE_DESKTOP_APP` | `true` |
+| `VITE_OPENSEARCH_ENABLED` | `false` |
+| `VITE_ALLOW_FEBBOX_KEY` | `true` |
+| `VITE_USE_TRAKT` | `true` |
+| `VITE_DESKTOP_RELEASES_REPO` | `finey-dev/topwaatch` |
+| `VITE_DESKTOP_RELEASE_TAG_PREFIX` | `desktop-v` |
+| `VITE_APP_DOMAIN` | `https://topwaatch.vercel.app` |
+| `VITE_BACKEND_URL` | `https://topwaatch-server.vercel.app` |
+| `VITE_CORS_PROXY_URL` | `https://topwaatch-proxy.fineyakwoyo.workers.dev/proxy` |
+| `VITE_M3U8_PROXY_URL` | `https://topwaatch-proxy.fineyakwoyo.workers.dev` |
+| `VITE_FEBBOX_CLIENT_ID` | *(same as Vercel)* |
+| `VITE_FEBBOX_REDIRECT_URI` | `https://topwaatch.vercel.app/febbox` |
+| `VITE_TRAKT_CLIENT_ID` | *(same as Vercel)* |
+| `VITE_TRAKT_REDIRECT_URI` | `https://topwaatch.vercel.app` |
+| `VITE_TMDB_READ_API_KEY` | *(same as Vercel)* |
+| `VITE_TRAKT_CLIENT_SECRET` | *(same as Vercel)* |
+| `TAURI_SIGNING_PRIVATE_KEY` | Tauri updater signing key |
+| `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` | Only if signing key is encrypted |
+
+`GITHUB_TOKEN` is provided automatically — do not add it.
+
+The workflow fails early with a clear error if any required secret is missing.
+
+### Local desktop dev
+
+Copy `apps/web/.env.desktop.example` → `apps/web/.env.desktop.local` (gitignored) and fill in values (localhost URLs for local backends).
+
+The server must allow Tauri webview origins (`http://tauri.localhost`, etc.) for auth and API calls.
