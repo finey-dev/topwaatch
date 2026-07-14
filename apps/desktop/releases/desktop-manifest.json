@@ -1,12 +1,33 @@
 {
-  "version": "0.0.0",
-  "tag": null,
-  "publishedAt": null,
+  "version": "0.1.0",
+  "tag": "desktop-v0.1.0",
+  "publishedAt": "2026-07-14T09:17:27.282Z",
+  "repo": "finey-dev/topwaatch",
   "variants": {
-    "appImageX64": { "available": false, "url": null },
-    "appImageArm": { "available": false, "url": null },
-    "debianUbuntu": { "available": false, "url": null },
-    "fedora": { "available": false, "url": null },
-    "installer": { "available": false, "url": null }
+    "appImageX64": {
+      "available": true,
+      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.0/TopWaatch_0.1.0_amd64.AppImage",
+      "fileName": "TopWaatch_0.1.0_amd64.AppImage"
+    },
+    "appImageArm": {
+      "available": true,
+      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.0/TopWaatch_0.1.0_aarch64.AppImage",
+      "fileName": "TopWaatch_0.1.0_aarch64.AppImage"
+    },
+    "debianUbuntu": {
+      "available": true,
+      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.0/TopWaatch_0.1.0_amd64.deb",
+      "fileName": "TopWaatch_0.1.0_amd64.deb"
+    },
+    "fedora": {
+      "available": true,
+      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.0/TopWaatch-0.1.0-1.x86_64.rpm",
+      "fileName": "TopWaatch-0.1.0-1.x86_64.rpm"
+    },
+    "installer": {
+      "available": true,
+      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.0/TopWaatch_0.1.0_x64-setup.exe",
+      "fileName": "TopWaatch_0.1.0_x64-setup.exe"
+    }
   }
 }
