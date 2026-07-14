@@ -31,11 +31,14 @@ const VARIANT_MATCHERS = [
     test: (name) => /\.rpm$/i.test(name) && /(x86_64|amd64|x64)/i.test(name),
   },
   {
-    id: "installer",
+    id: "installerExe",
     test: (name) =>
       /-setup\.exe$/i.test(name) ||
-      (/\.exe$/i.test(name) && /(x64|x86_64|amd64)/i.test(name)) ||
-      /\.msi$/i.test(name),
+      (/\.exe$/i.test(name) && /(x64|x86_64|amd64)/i.test(name)),
+  },
+  {
+    id: "installerMsi",
+    test: (name) => /\.msi$/i.test(name),
   },
 ];
 

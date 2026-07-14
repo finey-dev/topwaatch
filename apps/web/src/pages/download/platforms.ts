@@ -4,7 +4,7 @@ export type PlatformId = "android" | "linux" | "windows";
 
 export type AndroidVariantId = "devices" | "tv";
 export type LinuxVariantId = "appImageX64" | "appImageArm" | "debianUbuntu" | "fedora";
-export type WindowsVariantId = "installer";
+export type WindowsVariantId = "installerExe" | "installerMsi";
 
 export type PlatformVariantId =
   | AndroidVariantId
@@ -45,6 +45,9 @@ export const DOWNLOAD_PLATFORMS: DownloadPlatform[] = [
   {
     id: "windows",
     iconSrc: "/platforms/windows.svg",
-    variants: [{ id: "installer", status: "coming_soon" }],
+    variants: [
+      { id: "installerExe", status: "coming_soon" },
+      { id: "installerMsi", status: "coming_soon" },
+    ],
   },
 ];

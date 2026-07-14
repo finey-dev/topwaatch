@@ -30,7 +30,7 @@ export interface DesktopManifest {
   tag: string | null;
   publishedAt: string | null;
   repo?: string;
-  variants: Record<DesktopVariantId, DesktopManifestVariant>;
+  variants: Record<string, DesktopManifestVariant>;
 }
 
 const DESKTOP_VARIANT_IDS: DesktopVariantId[] = [
@@ -38,8 +38,24 @@ const DESKTOP_VARIANT_IDS: DesktopVariantId[] = [
   "appImageArm",
   "debianUbuntu",
   "fedora",
-  "installer",
+  "installerExe",
+  "installerMsi",
 ];
+
+/** Legacy manifest key before exe/msi split. */
+const LEGACY_INSTALLER_EXE_KEY = "installer";
+
+function getManifestVariant(
+  variants: Record<string, DesktopManifestVariant | undefined>,
+  variantId: DesktopVariantId,
+): DesktopManifestVariant | undefined {
+  const direct = variants[variantId];
+  if (direct) return direct;
+  if (variantId === "installerExe") {
+    return variants[LEGACY_INSTALLER_EXE_KEY];
+  }
+  return undefined;
+}
 
 async function fetchJson<T>(url: string): Promise<T | null> {
   const response = await fetch(url, {
@@ -59,12 +75,13 @@ function assetMatchesVariant(assetName: string, variantId: DesktopVariantId): bo
       return /\.deb$/i.test(assetName) && /(amd64|x86_64|x64)/i.test(assetName);
     case "fedora":
       return /\.rpm$/i.test(assetName) && /(x86_64|amd64|x64)/i.test(assetName);
-    case "installer":
+    case "installerExe":
       return (
         /-setup\.exe$/i.test(assetName) ||
-        (/\.exe$/i.test(assetName) && /(x64|x86_64|amd64)/i.test(assetName)) ||
-        /\.msi$/i.test(assetName)
+        (/\.exe$/i.test(assetName) && /(x64|x86_64|amd64)/i.test(assetName))
       );
+    case "installerMsi":
+      return /\.msi$/i.test(assetName);
     default:
       return false;
   }
@@ -148,7 +165,9 @@ function resolveVariant(
   variantId: DesktopVariantId,
   manifest: DesktopManifest | null,
 ): DownloadVariant {
-  const remote = manifest?.variants?.[variantId];
+  const remote = manifest
+    ? getManifestVariant(manifest.variants, variantId)
+    : undefined;
   if (remote?.available && remote.url) {
     return {
       id: variantId,

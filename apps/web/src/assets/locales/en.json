@@ -1257,8 +1257,11 @@
         "name": "Windows",
         "description": "TopWaatch on Windows  your library, progress, and Cinema in one polished desktop app.",
         "variants": {
-          "installer": {
-            "name": "Windows installer"
+          "installerExe": {
+            "name": "Setup (.exe)"
+          },
+          "installerMsi": {
+            "name": "MSI installer"
           }
         }
       }

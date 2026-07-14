@@ -4,7 +4,23 @@
     <title>TopWaatch Notifications</title>
     <description>Site updates and announcements for the TopWaatch community</description>
     <language>en</language>
-    <lastBuildDate>Mon, 07 Jul 2026 00:00:00 GMT</lastBuildDate>
+    <lastBuildDate>Tue, 14 Jul 2026 00:00:00 GMT</lastBuildDate>
+
+    <item>
+      <guid>notification-desktop-release-001</guid>
+      <title>Desktop releases are now available</title>
+      <description>TopWaatch for desktop is here — native apps for Linux and Windows are ready to download.
+
+Take your watchlist, progress, and TopWaatch Cinema with you outside the browser. Pick the build that fits your system on our download page: AppImage, .deb, .rpm, or Windows setup (.exe or .msi).
+
+Already using the desktop app? Updates roll out automatically when new releases ship.
+
+Head to the Download page to get the latest build for your platform.
+      </description>
+      <link>/download</link>
+      <pubDate>Tue, 14 Jul 2026 00:00:00 GMT</pubDate>
+      <category>feature</category>
+    </item>
 
     <item>
       <guid>notification-topwaatch-001</guid>

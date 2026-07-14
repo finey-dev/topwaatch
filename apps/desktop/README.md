@@ -58,7 +58,7 @@ The pipeline builds:
 
 - Linux x64: AppImage, `.deb`, `.rpm`
 - Linux ARM64: AppImage, `.deb`, `.rpm`
-- Windows x64: NSIS installer
+- Windows x64: NSIS setup (.exe) and MSI installer
 
 It then uploads GitHub Release assets, generates:
 
