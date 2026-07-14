@@ -1,19 +1,19 @@
 {
-  "version": "0.1.1",
-  "notes": "TopWaatch Desktop 0.1.1",
-  "pub_date": "2026-07-14T10:16:20.447Z",
+  "version": "0.1.2",
+  "notes": "TopWaatch Desktop 0.1.2",
+  "pub_date": "2026-07-14T11:10:14.347Z",
   "platforms": {
     "linux-x86_64": {
-      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.1/TopWaatch_0.1.1_amd64.AppImage",
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUcmZ5YnBwcGJwempmRW5Qc292U0JBOWFUNElwcmxzR2xmR044Q3FmNFp0N0hiT3hNMlFpRkYxMHFOWlF5SHhzRHUvMlhDaVJ4c0xxeXpzNFZGNlR6azdtKzFSdlQ0aGcwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg0MDIzOTQyCWZpbGU6VG9wV2FhdGNoXzAuMS4xX2FtZDY0LkFwcEltYWdlCmJUUll2THFlTDVKcHorU3g3OU1BVy9CWDRFRnZIb3FVV2p4NFFndEZYTlpGc1k2MjdPK0M3YXJnTVRjYXY3V0hwQmdoR01FVEo2M1JCZkdHdUdhWkJnPT0K"
+      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.2/TopWaatch_0.1.2_amd64.AppImage",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUcmZ5YnBwcGJwenNZVG55M2NrdjgzejFQUmZSdE9wQkNDY2IrY1pQcjRtQ0wvSmdqMU5qSHp2d3JmREsvRFZpOHpiWFdYMUJRYm1XZ0VxaFpZbzdVTkhEeGZvWTdSaWc4PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg0MDI2OTYxCWZpbGU6VG9wV2FhdGNoXzAuMS4yX2FtZDY0LkFwcEltYWdlCkZZLy8vZ291T0ZUb1RqZzA4U0pzYTJnQ05xL2xjOUFybTByNTRZNlE5VWZrVmhnSW1jU0F0RElNZHR6aytQRmpRNjdYNVljYjlPZVBDOWNzRFZlREJ3PT0K"
     },
     "linux-aarch64": {
-      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.1/TopWaatch_0.1.1_aarch64.AppImage",
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUcmZ5YnBwcGJwem5pZDF0c3U3OVFheUZJVXJjOU9KZExDTEgvYTBOaG9XRkV6dldZYVhPazdZdWI5MWFkQXFUSEZKdmx3RXZhRDU5QVBhWmxTYlB5dGNFUnh4VkcwTUFBPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg0MDIzNzk5CWZpbGU6VG9wV2FhdGNoXzAuMS4xX2FhcmNoNjQuQXBwSW1hZ2UKeWhGV0RZb0RCSzlvdHFndDBhYXI0OGZpT3V1OTRmcHVYMjZYZGJEMUZ5MWRldlNOVk5BV1poaFY5TGNjeC83Z3JZa3d1QVkxczlUcC9hRm9yVHF3RGc9PQo="
+      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.2/TopWaatch_0.1.2_aarch64.AppImage",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUcmZ5YnBwcGJwem50cU5Zc1Q0bEFWeC9GRkg4WWd6OGI4cGxFTVFTakZRVkVWK0JTdzlDcThFZG1sVXgrbFNFcEkrNk1zdjlXWGE3a1hDTjdqSE12VDlVa1d1SENvUmdvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg0MDI3MDE4CWZpbGU6VG9wV2FhdGNoXzAuMS4yX2FhcmNoNjQuQXBwSW1hZ2UKTlRNUmwvUkF3aTFxZTJSV1pxSWdGclpFN1QzcW9UMkgzMFBuc255MmwyUXlBQjAxTTdJWG54dndwV3RlQTRnNThwbWFvYm5SeFFjTmVCaHRsNkd1QlE9PQo="
     },
     "windows-x86_64": {
-      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.1/TopWaatch_0.1.1_x64-setup.exe",
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUcmZ5YnBwcGJwenJhaDJlNW0wVUxKV00wUmlQMjVsc2YrQ2pFV3hxM25TVHlZQXNCUVp0d2x2Vlg3cnNpVUErR3pxN3hCTDl2MVVJRmw0cnB0QWQwQnhkR2s4OUpNaHdzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg0MDI0MTU5CWZpbGU6VG9wV2FhdGNoXzAuMS4xX3g2NC1zZXR1cC5leGUKN0ZTSi9nYXd5dFpsalBGVE1POW5CRXZzMFlCTEExVGh0TG1RT0FsMFNLeTYwd1UwVnZZZlFwRklJdTNjcXJNbnlPWnRaL0tUM05GN1ZETHY2Q2xPQ2c9PQo="
+      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.2/TopWaatch_0.1.2_x64-setup.exe",
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVUcmZ5YnBwcGJwenR6eWgranAva2QwWU1ESktIbU52SW5qdUFRUlZjMms4RFpmQUIrRGR4WHY0Y0VubWNjc09aZTZ5Q0tCOSsrNkFDRHU0a2Q2QmcxajhWTU84VGJxOUFFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg0MDI3Mzg5CWZpbGU6VG9wV2FhdGNoXzAuMS4yX3g2NC1zZXR1cC5leGUKUEdlUTZUTXhVdWdMOGlrZ0UvRWM5OHZWaWl0eE5MY0ZjUWwvT2VsSWJVWUxFQ01sbHZEMXIxVjQ4OGt5NzlTL045Z0QvQVlPZmNLZ1VHQWVRVk5xQVE9PQo="
     }
   }
 }
