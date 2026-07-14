@@ -112,7 +112,7 @@ async function fromTmdbKeywordSearch(query: string): Promise<TraktListResponse> 
 }
 
 /**
- * Prefer TMDB for discover carousels. Trakt is optional enrichment only —
+ * Prefer TMDB for discover carousels. Trakt is optional enrichment only 
  * Vercel/datacenter IPs often get Trakt 403 even with a valid client id.
  */
 export const LIST_HANDLERS: Record<string, () => Promise<TraktListResponse>> = {

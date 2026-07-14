@@ -62,7 +62,7 @@ export function getProviders(features: FeatureMap, list: ProviderList): Provider
   const embeds = list.embeds.filter((v) => !v?.disabled);
   const combined = [...sources, ...embeds];
 
-  // Duplicate IDs are always a hard error — two providers with the same ID
+  // Duplicate IDs are always a hard error  two providers with the same ID
   // cannot coexist and would cause silent data corruption.
   const duplicateIds = findDuplicates(combined, (v) => v.id);
   if (duplicateIds.length > 0) {

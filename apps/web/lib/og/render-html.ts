@@ -83,7 +83,7 @@ export function buildDefaultOgDocument(origin: string, canonicalPath: string) {
     description: DEFAULT_DESCRIPTION,
     imageUrl,
     imageType: "image/png",
-    imageAlt: `${SITE_NAME} — Watch movies and shows with bookmarks, progress, and history that follow you`,
+    imageAlt: `${SITE_NAME}  Watch movies and shows with bookmarks, progress, and history that follow you`,
     ogType: "website",
     imageWidth: OG_IMAGE_WIDTH,
     imageHeight: OG_IMAGE_HEIGHT,

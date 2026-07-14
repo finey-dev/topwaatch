@@ -41,6 +41,7 @@ import { LegalPage } from "@/pages/Legal";
 import { LoginPage } from "@/pages/Login";
 import { PasPage } from "@/pages/Pas";
 import { RegisterPage } from "@/pages/Register";
+import { DownloadPage } from "@/pages/Download";
 import { SupportPage } from "@/pages/Support";
 import { WatchHistory } from "@/pages/watchHistory/WatchHistory";
 import { Layout } from "@/setup/Layout";
@@ -222,6 +223,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/download" element={<DownloadPage />} />
           <Route path="/febbox" element={<FebboxCallbackPage />} />
           <Route path="/legal" element={<LegalPage />} />
           {/* Support page */}

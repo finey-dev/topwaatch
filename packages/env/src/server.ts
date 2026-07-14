@@ -15,9 +15,9 @@ export const env = createEnv({
   },
 
   server: {
-    /** Transaction-mode pooler URL (port 6543) — used by the app at runtime. */
+    /** Transaction-mode pooler URL (port 6543)  used by the app at runtime. */
     DATABASE_URL: z.string().min(1),
-    /** Direct Postgres URL (port 5432) — optional, for drizzle-kit migrate/push. Falls back to DATABASE_URL. */
+    /** Direct Postgres URL (port 5432)  optional, for drizzle-kit migrate/push. Falls back to DATABASE_URL. */
     DIRECT_DATABASE_URL: z.string().min(1).optional(),
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_URL: z.url(),

@@ -486,7 +486,7 @@ export async function getMediaDetails<
   TReturn = MediaDetailReturn<T>,
 >(id: string, type: T, fetchEpisodes: boolean = true): Promise<TReturn> {
   if (type === TMDBContentTypes.MOVIE) {
-    // append_to_response must be in the URL, not in params — ofetch encodes
+    // append_to_response must be in the URL, not in params  ofetch encodes
     // params with URLSearchParams which turns commas into %2C, and TMDB
     // ignores append_to_response when commas are percent-encoded.
     return get<TReturn>(

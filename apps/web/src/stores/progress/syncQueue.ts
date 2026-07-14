@@ -34,7 +34,7 @@ export function requestProgressSyncFlush(): void {
   });
 }
 
-/** Await any in-flight flush — used on tab hide / playback stop. */
+/** Await any in-flight flush  used on tab hide / playback stop. */
 export async function awaitProgressSyncFlush(): Promise<void> {
   if (flushInFlight) {
     await flushInFlight;

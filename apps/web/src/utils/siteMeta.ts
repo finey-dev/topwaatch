@@ -3,7 +3,7 @@ export const SITE_NAME = "TopWaatch";
 export const DEFAULT_DESCRIPTION =
   "TopWaatch. Watch movies and shows with bookmarks, progress, and history that follow you across every device.";
 
-/** Served from apps/web/public — bump when replacing the artwork. */
+/** Served from apps/web/public  bump when replacing the artwork. */
 export const OG_IMAGE_PATH = "/embed-preview.png";
 export const OG_IMAGE_VERSION = "3";
 export const OG_IMAGE_WIDTH = 1200;

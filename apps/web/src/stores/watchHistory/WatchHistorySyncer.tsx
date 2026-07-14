@@ -12,7 +12,7 @@ import {
   useWatchHistoryStore,
 } from "@/stores/watchHistory";
 
-/** Low-volume writes — episode completions only. */
+/** Low-volume writes  episode completions only. */
 const SYNC_INTERVAL_MS = 60_000;
 
 function coalesceWatchHistoryQueue(
@@ -116,7 +116,7 @@ export function WatchHistorySyncer() {
     };
   }, [flush]);
 
-  // Completions and deletes should sync soon — both are rare user-driven events.
+  // Completions and deletes should sync soon  both are rare user-driven events.
   useEffect(() => {
     const originalAddItem = useWatchHistoryStore.getState().addItem;
     const originalRemoveItem = useWatchHistoryStore.getState().removeItem;

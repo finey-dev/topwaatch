@@ -122,7 +122,7 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
   const base = getFebboxBackendUrl();
   if (!base) {
     throw new NotFoundError(
-      'Backend URL is not configured — set VITE_BACKEND_URL for TopWaatch Nova',
+      'Backend URL is not configured  set VITE_BACKEND_URL for TopWaatch Nova',
     );
   }
 

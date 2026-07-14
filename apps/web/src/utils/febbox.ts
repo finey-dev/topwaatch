@@ -25,7 +25,7 @@ export function resolveFebboxRedirectUri(
  * After the user signs in with Google, Febbox redirects to:
  *   REDIRECT_URI?auth_token=TOKEN
  *
- * Do NOT use /open/client_auth as the entry point — that endpoint is for
+ * Do NOT use /open/client_auth as the entry point  that endpoint is for
  * API OAuth clients created at /open/clients (plural) and will return
  * "client not found" for web-authorize clients.
  */

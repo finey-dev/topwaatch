@@ -6,7 +6,7 @@ import { usePlayerStore } from "@/stores/player/store";
 import { ProgressItem, useProgressStore } from "@/stores/progress";
 import { requestProgressSyncFlush } from "@/stores/progress/syncQueue";
 
-/** Local save interval — updates zustand + coalesced queue only (no network). */
+/** Local save interval  updates zustand + coalesced queue only (no network). */
 const LOCAL_SAVE_INTERVAL_MS = 10_000;
 
 function progressIsNotStarted(duration: number, watched: number): boolean {

@@ -134,7 +134,7 @@ function rewritePlaylist(
           ),
         );
       } else if (line.startsWith("#EXT-X-BITRATE:")) {
-        // Febbox/shegu inserts this between #EXTINF and the segment URL — drop it
+        // Febbox/shegu inserts this between #EXTINF and the segment URL  drop it
         // so HLS.js associates each URL with the preceding #EXTINF.
         continue;
       } else {

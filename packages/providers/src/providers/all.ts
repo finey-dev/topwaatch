@@ -102,7 +102,7 @@ import { warezcdnScraper } from './sources/warezcdn';
 import { watchanimeworldScraper } from './sources/watchanimeworld';
 import { wecimaScraper } from './sources/wecima';
 import { zunimeScraper } from './sources/zunime';
-// Archived — unreliable; re-enable when stable (see sources/peachify.ts).
+// Archived  unreliable; re-enable when stable (see sources/peachify.ts).
 // import { peachifyScraper } from './sources/peachify';
 import { vidcoreScraper } from './sources/vidcore';
 import { icefyScraper } from './sources/icefy';
@@ -114,7 +114,7 @@ import { tulnexScraper } from './sources/tulnex/index';
 import { vidzeeScraper } from './sources/vidzee/index';
 
 export function gatherAllSources(): Array<Sourcerer> {
-  // Primary sources — direct streams / TopWaatch Cinema (no third-party embed hosts).
+  // Primary sources  direct streams / TopWaatch Cinema (no third-party embed hosts).
   return [
     // cuevana3Scraper,
     // ridooMoviesScraper,
@@ -176,7 +176,7 @@ export function gatherAllSources(): Array<Sourcerer> {
 }
 
 export function gatherAllEmbeds(): Array<Embed> {
-  // Third-party embed hosts disabled — most are unreliable. Sources above that only
+  // Third-party embed hosts disabled  most are unreliable. Sources above that only
   // returned embed URLs will not resolve until this list is restored.
   return [];
 

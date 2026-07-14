@@ -35,11 +35,11 @@
 
 [dir] .lightbar-visual {
   left: 0;
-  --top: theme("colors.background.main");
+  --top: transparent;
   --bottom: theme("colors.lightBar.light");
   --first: conic-gradient(from 90deg at 80% 50%, var(--top), var(--bottom));
   --second: conic-gradient(from 270deg at 20% 50%, var(--bottom), var(--top));
-  mask-image: radial-gradient(100% 50% at center center, black, transparent);
+  mask-image: radial-gradient(120% 70% at center 55%, black 20%, transparent 75%);
   background-image: var(--first), var(--second);
   background-position-x: 1%, 99%;
   background-position-y: 0%, 0%;
@@ -56,7 +56,8 @@
 .lightbar canvas {
   width: 40%;
   height: 300px;
-  transform: translateY(-250px);
+  transform: translateY(-180px);
+  background: transparent;
 }
 
 @keyframes boot {

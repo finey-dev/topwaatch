@@ -11,7 +11,7 @@ export function rateLimitKey(userId: string | null | undefined, clientIp: string
 }
 
 /**
- * Atomic fixed-window counter in Postgres — consistent across all Vercel instances.
+ * Atomic fixed-window counter in Postgres  consistent across all Vercel instances.
  * One row per key; window resets after 60s of inactivity on that key.
  */
 export async function checkRateLimit(db: Db, key: string): Promise<boolean> {

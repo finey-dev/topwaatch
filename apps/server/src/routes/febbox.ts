@@ -87,7 +87,7 @@ async function fetchFebboxTraffic(
 ): Promise<{ status: FebboxTrafficStatus; quota: FebboxTrafficQuota | null }> {
   if (!ui) return { status: "unset", quota: null };
   // Validate the JWT structure + expiry locally first.  If this fails the
-  // token is definitely bad — no need to hit the network.
+  // token is definitely bad  no need to hit the network.
   if (!looksLikeUiToken(ui)) return { status: "invalid_token", quota: null };
 
   try {
@@ -111,11 +111,11 @@ async function fetchFebboxTraffic(
     // Febbox's traffic endpoint requires a full browser session (Laravel session
     // cookie, CSRF token, etc.) in addition to the `ui` JWT.  When called
     // server-side without those cookies, Febbox returns a 302 redirect to its
-    // login page.  With redirect:"manual" the status is 0 or 3xx — not JSON.
+    // login page.  With redirect:"manual" the status is 0 or 3xx  not JSON.
     // Since the JWT already passed looksLikeUiToken(), fall back to "success".
     if (res.status === 0 || (res.status >= 300 && res.status < 600 && res.status !== 400 && res.status !== 401)) {
       if (res.status === 502 || res.status === 503) {
-        // Febbox itself is down — the JWT may still be valid.
+        // Febbox itself is down  the JWT may still be valid.
         // Still return success so a valid local JWT isn't wrongly blocked.
         return { status: "success", quota: null };
       }
@@ -141,7 +141,7 @@ async function fetchFebboxTraffic(
     }
 
     if (json?.code !== 1 || !json?.data) {
-      // Unknown / unexpected response — JWT is valid, quota just unavailable.
+      // Unknown / unexpected response  JWT is valid, quota just unavailable.
       return { status: "success", quota: null };
     }
 
@@ -161,7 +161,7 @@ async function fetchFebboxTraffic(
       },
     };
   } catch {
-    // Network error reaching Febbox — JWT is valid, treat as connected.
+    // Network error reaching Febbox  JWT is valid, treat as connected.
     return { status: "success", quota: null };
   }
 }

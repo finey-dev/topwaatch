@@ -39,7 +39,7 @@ export function MetaPart(props: MetaPartProps) {
 
   const { error, value, loading } = useAsync(async () => {
     // Populate provider metadata for the settings UI.
-    // This is non-critical — a rank collision or init error must never abort
+    // This is non-critical  a rank collision or init error must never abort
     // the media load, so we swallow any error here.
     try {
       setCachedMetadata([

@@ -22,7 +22,7 @@ const SKIP_VALIDATION_CHECK_IDS = [
 const UNPROXIED_VALIDATION_CHECK_IDS = [
   // sources here are always proxied, so we dont need to validate with a proxy
   bombtheirishScraper.id, // this one is dead, but i'll keep it here for now
-  // Febbox/shegu CDN URLs are KEY-signed to the browser IP — proxied validation 404s.
+  // Febbox/shegu CDN URLs are KEY-signed to the browser IP  proxied validation 404s.
   FedAPIScraper.id,
   FedAPIDBScraper.id,
 ];
@@ -96,7 +96,7 @@ function bodyToBytes(body: unknown): Uint8Array | null {
 }
 
 /**
- * Reject MKV containers — browsers often play video but not AC3/DTS audio.
+ * Reject MKV containers  browsers often play video but not AC3/DTS audio.
  */
 export function isMkvHeader(bytes: Uint8Array): boolean {
   return (

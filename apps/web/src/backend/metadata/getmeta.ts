@@ -110,7 +110,7 @@ export async function getMetaFromId(
           selectedSeason.season_number,
         );
       } catch {
-        // Episode fetch failed — show an empty episode list rather than
+        // Episode fetch failed  show an empty episode list rather than
         // crashing the whole player with "Failed to load metadata".
       }
 

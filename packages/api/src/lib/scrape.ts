@@ -34,7 +34,7 @@ export const scrapeInputSchema = z.object({
   embedOrder: z.array(z.string()).optional(),
   excludeSourceIds: z.array(z.string()).optional(),
   skipHevcFileStreams: z.coerce.boolean().optional(),
-  /** Febbox UI cookie token — required for Nova/Orbit on server scrapes. */
+  /** Febbox UI cookie token  required for Nova/Orbit on server scrapes. */
   febboxKey: z.string().min(1).optional(),
 });
 
@@ -209,7 +209,7 @@ function rewriteStream(
   const headers = collectStreamHeaders(stream);
 
   if (stream.type === "iframe") {
-    // Iframe streams are rendered directly in the browser — no proxy rewriting needed.
+    // Iframe streams are rendered directly in the browser  no proxy rewriting needed.
     return stream;
   }
 

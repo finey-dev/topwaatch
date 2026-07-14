@@ -54,7 +54,7 @@ function selectSubdomainByRegion(input: string | null): string | null {
 
 function rewriteSheguSubdomain(originalUrl: string, subdomain: string): string {
   try {
-    // Febbox signed CDN URLs are bound to host + client IP — rewriting breaks them.
+    // Febbox signed CDN URLs are bound to host + client IP  rewriting breaks them.
     if (/[?&](sign|IP)=/i.test(originalUrl)) return originalUrl;
     if (/[?&]KEY\d+=/i.test(originalUrl)) return originalUrl;
     const parsed = new URL(originalUrl);
@@ -169,7 +169,7 @@ async function comboScraper(ctx: ShowScrapeContext | MovieScrapeContext): Promis
   const base = getFebboxBackendUrl();
   if (!base) {
     throw new NotFoundError(
-      'Backend URL is not configured — set VITE_BACKEND_URL for TopWaatch Orbit',
+      'Backend URL is not configured  set VITE_BACKEND_URL for TopWaatch Orbit',
     );
   }
   ctx.progress(50);

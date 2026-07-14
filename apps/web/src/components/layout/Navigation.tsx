@@ -217,6 +217,18 @@ export function Navigation(props: NavigationProps) {
               >
                 <IconPatch icon={Icons.COINS} clickable downsized navigation />
               </a>
+              <Link
+                to="/download"
+                className="group flex h-10 items-center overflow-hidden rounded-full bg-pill-background bg-opacity-50 text-white transition-all duration-300 ease-out hover:bg-pill-backgroundHover hover:bg-opacity-100 hover:pr-4 active:scale-105 tabbable backdrop-blur-lg"
+                title="Download"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center">
+                  <Icon icon={Icons.DOWNLOAD} className="text-xl" />
+                </div>
+                <span className="max-w-0 overflow-hidden whitespace-nowrap text-sm font-medium opacity-0 transition-all duration-300 ease-out group-hover:max-w-[100px] group-hover:opacity-100">
+                  Download
+                </span>
+              </Link>
             </div>
             <div className="relative pointer-events-auto flex items-center gap-3">
               <HomeLayoutCustomizerToggle />

@@ -303,6 +303,7 @@
     "homeTitle": "TopWaatch | Watch movies and shows with bookmarks, progress, and history that follow you",
     "pages": {
       "about": "About",
+      "download": "Download",
       "legal": "Legal",
       "discover": "Discover",
       "support": "Support",
@@ -1198,6 +1199,59 @@
     "q2": {
       "body": "We have a <0>GitHub</0> where you can create a detailed issue in our repository. Additionally, if you wish, you can create a pull request to fix the issue yourself.",
       "title": "How can I report a bug or issue?"
+    }
+  },
+  "download": {
+    "title": "Get TopWaatch on your device",
+    "metaDescription": "Download TopWaatch for Android, Linux, and Windows. Native apps with your watchlist, progress, and Cinema  rolling out platform by platform.",
+    "description": "Take your watchlist, progress, and Cinema wherever you go. TopWaatch is coming to the platforms you use every day  built natively so it feels fast, familiar, and fully yours.",
+    "independentReleases": "Each platform ships on its own schedule. Android might land first while Linux or Windows is still in the works  and that's by design. Check back here for the latest on your platform.",
+    "status": {
+      "comingSoon": "Coming soon",
+      "comingSoonDetail": "We're working on a release for this platform.",
+      "available": "Available",
+      "download": "Download"
+    },
+    "platforms": {
+      "android": {
+        "name": "Android",
+        "description": "Stream and sync on your phone, tablet, or TV. Your full library, watch history, and Cinema  wherever Android runs.",
+        "variants": {
+          "devices": {
+            "name": "Android devices"
+          },
+          "tv": {
+            "name": "Android TV & Smart TVs"
+          }
+        }
+      },
+      "linux": {
+        "name": "Linux",
+        "description": "A native desktop app for your distro. Pick the format that fits your system  each build ships independently.",
+        "variants": {
+          "appImageX64": {
+            "name": "AppImage (x64)"
+          },
+          "appImageArm": {
+            "name": "AppImage (ARM)"
+          },
+          "debianUbuntu": {
+            "name": "Debian / Ubuntu"
+          },
+          "fedora": {
+            "name": "Fedora"
+          }
+        }
+      },
+      "windows": {
+        "name": "Windows",
+        "description": "TopWaatch on Windows  your library, progress, and Cinema in one polished desktop app.",
+        "variants": {
+          "installer": {
+            "name": "Windows installer"
+          }
+        }
+      }
     }
   },
   "jip": {

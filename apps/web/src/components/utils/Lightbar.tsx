@@ -410,8 +410,7 @@ function ParticlesCanvas() {
         shouldTick = false;
       }
 
-      canvas.width = canvas.scrollWidth;
-      canvas.height = canvas.scrollHeight;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (const particle of particles) {
         particle.render(canvas);
       }

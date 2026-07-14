@@ -36,7 +36,7 @@ export type HlsBasedStream = StreamCommon & {
 
 export type IframeBasedStream = StreamCommon & {
   type: 'iframe';
-  /** Full embed URL including query params — rendered as <iframe src={embedUrl}> */
+  /** Full embed URL including query params  rendered as <iframe src={embedUrl}> */
   embedUrl: string;
 };
 

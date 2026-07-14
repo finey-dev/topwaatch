@@ -152,7 +152,7 @@ scrapeSseRoutes.get("/scrape/run", async (c) => {
         },
       });
 
-      // Compact done event — full payload fetched via /scrape/result/:id
+      // Compact done event  full payload fetched via /scrape/result/:id
       const resultId = storeScrapeResult(result);
       if (result.ok === false) {
         await send("done", {

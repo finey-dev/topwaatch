@@ -422,14 +422,14 @@ export function FebboxSetup({
                           febbox.com/open/client
                         </MwLink>{" "}
                         (the <span className="text-white">web-authorize</span>{" "}
-                        page) — not the API developer page. Set the redirect URI
+                        page)  not the API developer page. Set the redirect URI
                         to exactly{" "}
                         <span className="text-white break-all">
                           {febboxRedirectUri}
                         </span>
                         . If Febbox shows{" "}
                         <span className="text-white">client not found</span>,
-                        your client_id is from the wrong page — create a new one
+                        your client_id is from the wrong page  create a new one
                         at the link above.
                       </p>
                     ) : null}

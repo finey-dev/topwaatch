@@ -69,7 +69,7 @@ export async function handleTs(
     outHeaders.set("Content-Type", contentType);
     outHeaders.set("Cache-Control", "public, max-age=3600");
 
-    // Pass response.body directly — avoids routing every chunk through the
+    // Pass response.body directly  avoids routing every chunk through the
     // JS heap via TransformStream, which burns CPU budget on the free plan.
     return new Response(response.body, {
       status: 200,

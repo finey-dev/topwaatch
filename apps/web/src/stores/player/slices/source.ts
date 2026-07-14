@@ -268,7 +268,7 @@ export const createSourceSlice: MakeSlice<SourceSlice> = (set, get) => ({
     captions: CaptionListItem[],
     startAt: number,
   ) {
-    // Iframe streams (e.g. Peachify) are rendered as a full-page <iframe> — no
+    // Iframe streams (e.g. Peachify) are rendered as a full-page <iframe>  no
     // video display pipeline is involved at all.
     if (stream.type === "iframe") {
       set((s) => {

@@ -1,7 +1,7 @@
 import { env } from "@topwaatch/env/server";
 import { Pool, type PoolConfig } from "pg";
 
-/** Vercel / other serverless runtimes reuse warm instances — keep pools tiny. */
+/** Vercel / other serverless runtimes reuse warm instances  keep pools tiny. */
 const isServerless = process.env.VERCEL === "1" || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
 
 const poolConfig: PoolConfig = {
@@ -29,7 +29,7 @@ function createPool(): Pool {
   return pool;
 }
 
-/** Singleton pool — survives warm serverless invocations via globalThis. */
+/** Singleton pool  survives warm serverless invocations via globalThis. */
 export function getPool(): Pool {
   if (!globalThis.__topwaatchPgPool) {
     globalThis.__topwaatchPgPool = createPool();

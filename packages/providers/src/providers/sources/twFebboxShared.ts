@@ -2,7 +2,7 @@ import { flags } from '@/entrypoint/utils/targets';
 import { Caption } from '@/providers/captions';
 import { Stream } from '@/providers/streams';
 
-/** Server scrape context — Cinema scrapers read this when `window` is unavailable. */
+/** Server scrape context  Cinema scrapers read this when `window` is unavailable. */
 export type FebboxScrapeContext = {
   febboxKey?: string | null;
   backendUrl?: string | null;
@@ -96,7 +96,7 @@ export function isOrgDirectFileUrl(url: string): boolean {
   return path.endsWith('.mp4') || path.endsWith('.webm');
 }
 
-/** Labeled Febbox/shegu qualities — still probe-reject MKV containers. */
+/** Labeled Febbox/shegu qualities  still probe-reject MKV containers. */
 export function isBrowserPlayableDirectFile(url: string): boolean {
   if (isHlsUrl(url) || isMkvUrl(url)) return false;
   if (isOrgDirectFileUrl(url)) return true;
@@ -134,7 +134,7 @@ export function febboxPlaybackHeaders(ui: string): Record<string, string> {
 
 /**
  * Febbox/shegu HLS uses large fMP4 (.m4s) segments with CDN CORS *.
- * Proxying each segment through ts-proxy exceeds Worker CPU — browser loads direct.
+ * Proxying each segment through ts-proxy exceeds Worker CPU  browser loads direct.
  */
 export function playlistNeedsDirectSegments(url: string): boolean {
   try {
@@ -225,7 +225,7 @@ export function buildFebboxStreamResults(opts: {
     : null;
 
   const hasLabeledMp4 = Object.keys(qualities).some((key) => key !== 'unknown');
-  // No labeled MP4 qualities (only MKV remux was dropped) — use transcoded HLS.
+  // No labeled MP4 qualities (only MKV remux was dropped)  use transcoded HLS.
   const effectivePrefer = hlsStream && !hasLabeledMp4 ? 'hls' : opts.prefer;
 
   const out: Stream[] = [];

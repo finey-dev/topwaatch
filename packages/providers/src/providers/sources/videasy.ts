@@ -93,7 +93,7 @@ async function fetchServerSources(
       headers: HEADERS,
     });
 
-    // Videasy returns a plain text hex blob — if it looks like JSON it wasn't a valid blob
+    // Videasy returns a plain text hex blob  if it looks like JSON it wasn't a valid blob
     if (!blob || typeof blob !== 'string' || blob.length < 10) return empty;
     if (blob.trim().startsWith('{') || blob.trim().startsWith('[')) return empty;
 

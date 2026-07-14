@@ -1,5 +1,5 @@
 /**
- * Peachify embed source (ARCHIVED — disabled in gatherAllSources).
+ * Peachify embed source (ARCHIVED  disabled in gatherAllSources).
  * Kept for reference; removed from the active source list due to reliability issues.
  * To restore: uncomment import + entry in providers/all.ts.
  */

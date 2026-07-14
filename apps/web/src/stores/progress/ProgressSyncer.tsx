@@ -13,7 +13,7 @@ import {
   registerProgressSyncFlush,
 } from "@/stores/progress/syncQueue";
 
-/** Server sync interval — 2 req/min per active streamer vs ~20/min before. */
+/** Server sync interval  2 req/min per active streamer vs ~20/min before. */
 const SYNC_INTERVAL_MS = 30_000;
 
 async function syncProgress(

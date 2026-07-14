@@ -24,7 +24,7 @@ window.__CONFIG__ = {
 
   // Febbox web authorize  https://www.febbox.com/open/client
   // Set VITE_FEBBOX_CLIENT_ID and VITE_FEBBOX_REDIRECT_URI as Vercel/build environment variables.
-  // Do NOT put real values here — this file is public and tracked in git.
+  // Do NOT put real values here  this file is public and tracked in git.
   VITE_FEBBOX_CLIENT_ID: null,
   VITE_FEBBOX_REDIRECT_URI: null,
 };

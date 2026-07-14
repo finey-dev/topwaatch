@@ -92,7 +92,7 @@ export function FebboxRecommendationModal() {
                     For the best streaming experience, we recommend connecting a
                     free{" "}
                     <span className="text-white">Febbox</span> account. This
-                    unlocks TopWaatch Nova and Orbit — premium 4K sources with
+                    unlocks TopWaatch Nova and Orbit  premium 4K sources with
                     fast load times.
                   </p>
                   <p className="text-sm">

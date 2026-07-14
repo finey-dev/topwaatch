@@ -8,7 +8,7 @@ const outDir = join(root, ".vercel/output");
 const funcDir = join(outDir, "functions", "index.func");
 
 if (!existsSync(join(distDir, "index.mjs"))) {
-  throw new Error("dist/index.mjs missing — run `bun run build` first");
+  throw new Error("dist/index.mjs missing  run `bun run build` first");
 }
 
 rmSync(outDir, { recursive: true, force: true });

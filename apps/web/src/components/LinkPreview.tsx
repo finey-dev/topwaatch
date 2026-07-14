@@ -43,7 +43,7 @@ export function LinkPreview({
   const canonicalUrl =
     url ?? toAbsoluteUrl(`${location.pathname}${location.search}${location.hash}`);
   const imageUrl = image ? toAbsoluteUrl(image) : defaultOgImageUrl();
-  const alt = imageAlt ?? `${SITE_NAME} — ${title}`;
+  const alt = imageAlt ?? `${SITE_NAME}  ${title}`;
   const useDefaultDimensions = isDefaultOgImage(image);
   const width = useDefaultDimensions ? OG_IMAGE_WIDTH : imageWidth;
   const height = useDefaultDimensions ? OG_IMAGE_HEIGHT : imageHeight;
@@ -55,7 +55,7 @@ export function LinkPreview({
       <link rel="canonical" href={canonicalUrl} />
       {noIndex ? <meta name="robots" content="noindex,nofollow" /> : null}
 
-      {/* Open Graph — Facebook, Discord, Slack, LinkedIn, iMessage, WhatsApp, Telegram */}
+      {/* Open Graph  Facebook, Discord, Slack, LinkedIn, iMessage, WhatsApp, Telegram */}
       <meta property="og:site_name" content={SITE_NAME} />
       <meta property="og:locale" content="en_US" />
       <meta property="og:type" content={type} />

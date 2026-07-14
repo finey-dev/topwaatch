@@ -24,7 +24,7 @@ export async function buildOgResponse(request: Request): Promise<Response> {
         description: DEFAULT_DESCRIPTION,
         imageUrl: defaultOgImageUrl(origin),
         imageType: "image/png",
-        imageAlt: `${SITE_NAME} — Watch movies and shows with bookmarks, progress, and history that follow you`,
+        imageAlt: `${SITE_NAME}  Watch movies and shows with bookmarks, progress, and history that follow you`,
         ogType: "website",
       }),
     );

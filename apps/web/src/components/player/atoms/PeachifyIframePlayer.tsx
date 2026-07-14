@@ -65,7 +65,7 @@ export function PeachifyIframePlayer() {
             JSON.stringify(msg.data),
           );
         } catch {
-          /* storage quota exceeded — ignore */
+          /* storage quota exceeded  ignore */
         }
         return;
       }
