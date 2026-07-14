@@ -18,5 +18,8 @@ declare global {
 }
 
 export function useIsDesktopApp(): boolean {
-  return Boolean(window.__PSTREAM_DESKTOP__);
+  return (
+    import.meta.env.VITE_DESKTOP_APP === "true" ||
+    Boolean(window.__PSTREAM_DESKTOP__)
+  );
 }

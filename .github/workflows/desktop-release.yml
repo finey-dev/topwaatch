@@ -9,7 +9,7 @@ on:
       version:
         description: "Release version (e.g. 0.1.0). Tag will be desktop-v{version}."
         required: true
-        default: "0.1.2"
+        default: "0.1.3"
 
 permissions:
   contents: write

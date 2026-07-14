@@ -6,6 +6,7 @@ import { usePreferencesStore } from "@/stores/preferences";
 import { SimpleCache } from "@/utils/cache";
 import { getTmdbLanguageCode } from "@/utils/language";
 import { MediaItem } from "@/utils/mediaTypes";
+import { isDesktopShell } from "@/utils/isDesktopShell";
 import { getProxyUrls } from "@/utils/proxyUrls";
 
 import { MWMediaMeta, MWMediaType, MWSeasonMeta } from "./types/mw";
@@ -222,7 +223,12 @@ function getBrowserTmdbBases(apiKey: string): {
   fallback: string;
   absoluteOrigin: string;
 } {
-  if (typeof window !== "undefined" && isV4Token(apiKey)) {
+  // Same-origin /tmdb/ proxy exists on Vercel and Vite dev, not in the Tauri shell.
+  if (
+    typeof window !== "undefined" &&
+    isV4Token(apiKey) &&
+    !isDesktopShell()
+  ) {
     return {
       primary: tmdbSameOriginBase,
       fallback: tmdbSameOriginBase,
@@ -234,6 +240,10 @@ function getBrowserTmdbBases(apiKey: string): {
     fallback: tmdbBaseUrl2,
     absoluteOrigin: tmdbBaseUrl1,
   };
+}
+
+function shouldUseTmdbProxy(): boolean {
+  return usePreferencesStore.getState().proxyTmdb || isDesktopShell();
 }
 
 // Cache for TMDB API responses
@@ -271,7 +281,7 @@ function getNextProxy(proxyUrls: string[]): string | undefined {
 export async function get<T>(url: string, params?: object): Promise<T> {
   const proxyUrls = getProxyUrls();
   const proxy = getNextProxy(proxyUrls);
-  const shouldProxyTmdb = usePreferencesStore.getState().proxyTmdb;
+  const shouldProxyTmdb = shouldUseTmdbProxy();
   const userLanguage = useLanguageStore.getState().language;
   const formattedLanguage = getTmdbLanguageCode(userLanguage);
 
@@ -551,7 +561,7 @@ export async function getMediaDetails<
 export function getMediaBackdrop(
   backdropPath: string | null,
 ): string | undefined {
-  const shouldProxyTmdb = usePreferencesStore.getState().proxyTmdb;
+  const shouldProxyTmdb = shouldUseTmdbProxy();
   const imgUrl = `https://image.tmdb.org/t/p/original${backdropPath}`;
   const proxyUrl = getProxyUrls()[0];
   if (proxyUrl && shouldProxyTmdb) {
@@ -561,7 +571,7 @@ export function getMediaBackdrop(
 }
 
 export function getMediaPoster(posterPath: string | null): string | undefined {
-  const shouldProxyTmdb = usePreferencesStore.getState().proxyTmdb;
+  const shouldProxyTmdb = shouldUseTmdbProxy();
   const imgUrl = `https://image.tmdb.org/t/p/w342/${posterPath}`;
 
   if (shouldProxyTmdb) {
@@ -773,7 +783,7 @@ export async function getPersonCombinedCredits(
 export function getPersonProfileImage(
   profilePath: string | null,
 ): string | undefined {
-  const shouldProxyTmdb = usePreferencesStore.getState().proxyTmdb;
+  const shouldProxyTmdb = shouldUseTmdbProxy();
   const imgUrl = `https://image.tmdb.org/t/p/w185/${profilePath}`;
 
   if (shouldProxyTmdb) {
