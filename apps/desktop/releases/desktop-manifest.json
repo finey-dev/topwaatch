@@ -1,38 +1,38 @@
 {
-  "version": "0.1.4",
-  "tag": "desktop-v0.1.4",
-  "publishedAt": "2026-07-14T12:02:14.961Z",
+  "version": "0.1.5",
+  "tag": "desktop-v0.1.5",
+  "publishedAt": "2026-07-14T12:55:31.361Z",
   "repo": "finey-dev/topwaatch",
   "variants": {
     "appImageX64": {
       "available": true,
-      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.4/TopWaatch_0.1.4_amd64.AppImage",
-      "fileName": "TopWaatch_0.1.4_amd64.AppImage"
+      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.5/TopWaatch_0.1.5_amd64.AppImage",
+      "fileName": "TopWaatch_0.1.5_amd64.AppImage"
     },
     "appImageArm": {
       "available": true,
-      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.4/TopWaatch_0.1.4_aarch64.AppImage",
-      "fileName": "TopWaatch_0.1.4_aarch64.AppImage"
+      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.5/TopWaatch_0.1.5_aarch64.AppImage",
+      "fileName": "TopWaatch_0.1.5_aarch64.AppImage"
     },
     "debianUbuntu": {
       "available": true,
-      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.4/TopWaatch_0.1.4_amd64.deb",
-      "fileName": "TopWaatch_0.1.4_amd64.deb"
+      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.5/TopWaatch_0.1.5_amd64.deb",
+      "fileName": "TopWaatch_0.1.5_amd64.deb"
     },
     "fedora": {
       "available": true,
-      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.4/TopWaatch-0.1.4-1.x86_64.rpm",
-      "fileName": "TopWaatch-0.1.4-1.x86_64.rpm"
+      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.5/TopWaatch-0.1.5-1.x86_64.rpm",
+      "fileName": "TopWaatch-0.1.5-1.x86_64.rpm"
     },
     "installerExe": {
       "available": true,
-      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.4/TopWaatch_0.1.4_x64-setup.exe",
-      "fileName": "TopWaatch_0.1.4_x64-setup.exe"
+      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.5/TopWaatch_0.1.5_x64-setup.exe",
+      "fileName": "TopWaatch_0.1.5_x64-setup.exe"
     },
     "installerMsi": {
       "available": true,
-      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.4/TopWaatch_0.1.4_x64_en-US.msi",
-      "fileName": "TopWaatch_0.1.4_x64_en-US.msi"
+      "url": "https://github.com/finey-dev/topwaatch/releases/download/desktop-v0.1.5/TopWaatch_0.1.5_x64_en-US.msi",
+      "fileName": "TopWaatch_0.1.5_x64_en-US.msi"
     }
   }
 }
