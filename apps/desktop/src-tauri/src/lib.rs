@@ -1,5 +1,4 @@
 use tauri::Manager;
-use tauri_plugin_process::ProcessExt;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -87,6 +86,5 @@ async fn run_startup_update(app: &tauri::AppHandle) -> tauri_plugin_updater::Res
         .await?;
 
     set_splash_status(app, "Restarting TopWaatch…");
-    app.process().restart();
-    Ok(())
+    app.restart();
 }
