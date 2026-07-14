@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 import { IconPatch } from "@/components/buttons/IconPatch";
 import { Icons } from "@/components/Icon";
-import { useModal } from "@/components/overlays/Modal";
 import { OverlayPortal } from "@/components/overlays/OverlayDisplay";
 import { Flare } from "@/components/utils/Flare";
 import { conf } from "@/setup/config";
@@ -15,47 +14,36 @@ import {
   TW_CINEMA_SETUP_PATH,
 } from "@/utils/topwaatchSources";
 
-const MODAL_ID = "febbox-recommendation";
-
 /**
  * Prompt on the home page for logged-in users without Febbox / TopWaatch Cinema.
  * Shown again on each visit to the root page until they connect Febbox.
  */
 export function FebboxRecommendationModal() {
   const { t } = useTranslation();
-  const modal = useModal(MODAL_ID);
   const navigate = useNavigate();
   const account = useAuthStore((s) => s.account);
   const febboxKey = usePreferencesStore((s) => s.febboxKey);
   const [dismissedThisVisit, setDismissedThisVisit] = useState(false);
 
-  const needsSetup =
+  const shouldShow =
     Boolean(account) &&
     conf().ALLOW_FEBBOX_KEY &&
-    !hasTopWaatchCinemaSetup(febboxKey);
-
-  const shouldShow = needsSetup && !dismissedThisVisit;
-
-  useEffect(() => {
-    if (shouldShow) modal.show();
-    else modal.hide();
-  }, [shouldShow, modal]);
+    !hasTopWaatchCinemaSetup(febboxKey) &&
+    !dismissedThisVisit;
 
   const dismiss = useCallback(() => {
     setDismissedThisVisit(true);
-    modal.hide();
-  }, [modal]);
+  }, []);
 
   const goToSetup = useCallback(() => {
     setDismissedThisVisit(true);
-    modal.hide();
     navigate(TW_CINEMA_SETUP_PATH);
-  }, [modal, navigate]);
+  }, [navigate]);
 
   if (!shouldShow) return null;
 
   return (
-    <OverlayPortal darken close={dismiss} show={modal.isShown}>
+    <OverlayPortal darken close={dismiss} show={shouldShow}>
       <div className="flex absolute inset-0 items-center justify-center p-4 overflow-hidden">
         <div className="overflow-y-auto max-h-[85vh] pointer-events-auto">
           <Flare.Base className="group rounded-3xl bg-background-main transition-colors duration-300 focus:relative focus:z-10 w-full max-w-lg p-6 bg-mediaCard-hoverBackground bg-opacity-60 backdrop-filter backdrop-blur-lg shadow-lg">
