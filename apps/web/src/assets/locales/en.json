@@ -1206,6 +1206,9 @@
     "metaDescription": "Download TopWaatch for Android, Linux, and Windows. Native apps with your watchlist, progress, and Cinema  rolling out platform by platform.",
     "description": "Take your watchlist, progress, and Cinema wherever you go. TopWaatch is coming to the platforms you use every day  built natively so it feels fast, familiar, and fully yours.",
     "independentReleases": "Each platform ships on its own schedule. Android might land first while Linux or Windows is still in the works  and that's by design. Check back here for the latest on your platform.",
+    "latestDesktopVersion": "Latest desktop release: v{{version}}",
+    "loadingReleases": "Checking GitHub for the latest desktop builds…",
+    "releaseFetchError": "Couldn't refresh desktop download links right now. Showing the last known availability.",
     "status": {
       "comingSoon": "Coming soon",
       "comingSoonDetail": "We're working on a release for this platform.",

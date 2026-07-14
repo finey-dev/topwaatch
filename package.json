@@ -22,7 +22,9 @@
   "scripts": {
     "dev": "turbo run dev --filter=server --filter=web --filter=@topwaatch/proxy-worker",
     "dev:all": "turbo run dev",
+    "dev:desktop": "turbo run dev --filter=desktop --filter=web --filter=server --filter=@topwaatch/proxy-worker",
     "build": "turbo run build",
+    "build:desktop": "turbo run build --filter=desktop",
     "check-types": "turbo run check-types",
     "dev:web": "turbo run dev --filter=server --filter=web --filter=@topwaatch/proxy-worker",
     "dev:native": "turbo run dev -F native",

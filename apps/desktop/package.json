@@ -1,0 +1,23 @@
+{
+  "name": "desktop",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "icons": "tauri icon app-icon.png",
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "build:web-shell": "bun run --filter web build -- --mode desktop",
+    "dev:web-shell": "bun run --filter web dev -- --host --port 5173 --mode desktop",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.10.1",
+    "@tauri-apps/plugin-process": "^2.3.1",
+    "@tauri-apps/plugin-updater": "^2.10.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.10.0",
+    "@topwaatch/config": "workspace:*",
+    "typescript": "^6"
+  }
+}

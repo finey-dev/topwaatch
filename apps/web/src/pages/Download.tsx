@@ -6,12 +6,16 @@ import { Heading1, Heading2, Paragraph } from "@/components/utils/Text";
 import { PageTitle } from "@/pages/parts/util/PageTitle";
 
 import { SubPageLayout } from "./layouts/SubPageLayout";
-import {
-  DOWNLOAD_PLATFORMS,
-  type DownloadPlatform,
-  type DownloadVariant,
-  type PlatformReleaseStatus,
+import type {
+  DownloadPlatform,
+  DownloadVariant,
+  PlatformReleaseStatus,
 } from "./download/platforms";
+import {
+  getDesktopVersionLabel,
+  mergeAllPlatforms,
+} from "./download/releaseSources";
+import { useDesktopReleases } from "./download/useDesktopReleases";
 
 function StatusBadge(props: { status: PlatformReleaseStatus }) {
   const { t } = useTranslation();
@@ -113,6 +117,9 @@ function PlatformCard(props: { platform: DownloadPlatform }) {
 
 export function DownloadPage() {
   const { t } = useTranslation();
+  const { data, isLoading, isError } = useDesktopReleases();
+  const visiblePlatforms = mergeAllPlatforms(data ?? null);
+  const desktopVersion = getDesktopVersionLabel(data ?? null);
 
   return (
     <SubPageLayout>
@@ -130,8 +137,26 @@ export function DownloadPage() {
           {t("download.independentReleases")}
         </Paragraph>
 
+        {desktopVersion ? (
+          <Paragraph className="mt-4 text-sm text-type-text/70">
+            {t("download.latestDesktopVersion", { version: desktopVersion })}
+          </Paragraph>
+        ) : null}
+
+        {isLoading ? (
+          <Paragraph className="mt-8 text-type-text/70">
+            {t("download.loadingReleases")}
+          </Paragraph>
+        ) : null}
+
+        {isError ? (
+          <Paragraph className="mt-4 text-sm text-amber-200/80">
+            {t("download.releaseFetchError")}
+          </Paragraph>
+        ) : null}
+
         <div className="mt-10 grid items-start gap-5 lg:grid-cols-3">
-          {DOWNLOAD_PLATFORMS.map((platform) => (
+          {visiblePlatforms.map((platform) => (
             <PlatformCard key={platform.id} platform={platform} />
           ))}
         </div>
