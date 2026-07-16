@@ -160,19 +160,25 @@ function VideoElement() {
     );
   }
 
+  // Apply color filters on a wrapper, not the <video> itself — direct filters on
+  // video elements force expensive per-frame repaints in WebKitGTK (Tauri desktop).
   return (
-    <video
-      id="video-element"
-      className="absolute inset-0 w-full h-screen bg-black"
-      style={{ filter: filterStr }}
-      autoPlay
-      playsInline
-      ref={videoEl}
-      preload="metadata"
-      onContextMenu={(e) => e.preventDefault()}
+    <div
+      className="absolute inset-0 h-screen w-full overflow-hidden bg-black"
+      style={filterStr ? { filter: filterStr } : undefined}
     >
-      {subtitleTrack}
-    </video>
+      <video
+        id="video-element"
+        className="absolute inset-0 h-full w-full"
+        autoPlay
+        playsInline
+        ref={videoEl}
+        preload="metadata"
+        onContextMenu={(e) => e.preventDefault()}
+      >
+        {subtitleTrack}
+      </video>
+    </div>
   );
 }
 

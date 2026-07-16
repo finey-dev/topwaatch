@@ -20,6 +20,7 @@ import { SupportInfoModal } from "@/components/overlays/SupportInfoModal";
 import { DonateModal } from "@/components/overlays/donateModal";
 import { FebboxAuthHandler } from "@/components/FebboxAuthHandler";
 import { ScrollToTopOnNavigate } from "@/components/ScrollToTopOnNavigate";
+import { VercelAnalytics } from "@/components/VercelAnalytics";
 import { SimklAuthHandler } from "@/components/SimklAuthHandler";
 import { TraktAuthHandler } from "@/components/TraktAuthHandler";
 import { useGlobalKeyboardEvents } from "@/hooks/useGlobalKeyboardEvents";
@@ -176,6 +177,7 @@ function App() {
 
   return (
     <Layout>
+      <VercelAnalytics />
       <ScrollToTopOnNavigate />
       <TraktAuthHandler />
       <SimklAuthHandler />

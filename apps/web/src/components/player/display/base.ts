@@ -40,6 +40,7 @@ import {
   canWebkitFullscreen,
   canWebkitPictureInPicture,
 } from "@/utils/detectFeatures";
+import { isDesktopShell } from "@/utils/isDesktopShell";
 import { makeEmitter } from "@/utils/events";
 
 const levelConversionMap: Record<number, SourceQuality> = {
@@ -243,10 +244,12 @@ export function makeVideoElementDisplayInterface(): DisplayInterface {
       if (!Hls.isSupported())
         throw new Error("HLS not supported. Update your browser. 🤦‍♂️");
       if (!hls) {
+        const desktopPlayer = isDesktopShell();
         hls = new Hls({
           autoStartLoad: true,
-          maxBufferLength: 120, // 120 seconds
-          maxMaxBufferLength: 240,
+          // Smaller buffers in the desktop webview reduce memory pressure and stutter.
+          maxBufferLength: desktopPlayer ? 30 : 120,
+          maxMaxBufferLength: desktopPlayer ? 60 : 240,
           abrEwmaDefaultEstimate: 5 * 1000 * 1000, // 5 Mbps default bandwidth estimate for better ABR decisions
           fragLoadPolicy: {
             default: {
